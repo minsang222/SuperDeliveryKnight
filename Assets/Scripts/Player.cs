@@ -11,10 +11,13 @@ public class Player : MonoBehaviour
     
     [SerializeField, Min(0f)] private float startSpeed = 10f;
     [SerializeField, Min(0f)] private float jumpForce = 20f;
+    [Header("Variable Jump")]
+    [SerializeField, Range(0f, 1f)] private float jumpReleaseVelocityMultiplier = 0.5f;
     [SerializeField] private int comboCount;
     [SerializeField] private float comboSpeedIncreaseRate = 0.01f;
     [Header("Hit Stop")]
     [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
+    [SerializeField, Min(0f)] private float hitStopDelay = 0.1f;
     [Header("Attack Timing")]
     [SerializeField, Min(0f)] private float attack12Interval = 0.2f;
     [SerializeField, Min(0f)] private float afterAttackInterval = 1f;
@@ -66,6 +69,7 @@ public class Player : MonoBehaviour
     private float _respawnElapsed;
     private Coroutine _attackCoroutine;
     private Coroutine _hitStopCoroutine;
+    private bool _isHitStopped;
     private Sniper _sniper;
     private readonly HashSet<int> _activeParryWindows = new HashSet<int>();
     private int _nextParryWindowId;
@@ -93,9 +97,17 @@ public class Player : MonoBehaviour
         comboCount++;
         _FXCount++;
         
-                if (_hitStopCoroutine != null)
+        if (_hitStopCoroutine != null)
         {
             StopCoroutine(_hitStopCoroutine);
+            _hitStopCoroutine = null;
+
+            // 이전 히트 스톱 도중 새 타격이 들어오면 먼저 시간을 정상으로 되돌린다.
+            if (_isHitStopped && !_isGameOver)
+            {
+                Time.timeScale = 1f;
+                _isHitStopped = false;
+            }
         }
         
         if (audioSource != null) {
@@ -113,11 +125,6 @@ public class Player : MonoBehaviour
             }
         }
         
-        if (_hitStopCoroutine != null)
-        {
-            StopCoroutine(_hitStopCoroutine);
-        }
-
         _hitStopCoroutine = StartCoroutine(ApplyHitStop());
     }
 
@@ -218,6 +225,12 @@ public class Player : MonoBehaviour
         if (_isGrounded && Keyboard.current != null && Keyboard.current.zKey.wasPressedThisFrame)
         {
             Jump();
+        }
+
+        // 상승 중 Z 키를 놓으면 위쪽 속도를 줄여 짧은 점프가 된다.
+        if (Keyboard.current != null && Keyboard.current.zKey.wasReleasedThisFrame && _rigidbody.linearVelocityY > 0f)
+        {
+            _rigidbody.linearVelocityY *= jumpReleaseVelocityMultiplier;
         }
 
         if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
@@ -477,7 +490,11 @@ public class Player : MonoBehaviour
 
     private IEnumerator ApplyHitStop()
     {
+        // 검이 물체에 닿은 뒤의 타격감을 위해 잠시 후 히트 스톱을 시작한다.
+        yield return new WaitForSecondsRealtime(hitStopDelay);
+
         Time.timeScale = 0f;
+        _isHitStopped = true;
         // 일반 대기는 timeScale 0에서 끝나지 않으므로 실제 시간 기준으로 히트스톱을 해제한다.
         yield return new WaitForSecondsRealtime(hitStopDuration);
 
@@ -486,6 +503,7 @@ public class Player : MonoBehaviour
             Time.timeScale = 1f;
         }
 
+        _isHitStopped = false;
         _hitStopCoroutine = null;
     }
 

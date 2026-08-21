@@ -1,0 +1,689 @@
+fileFormatVersion: 2
+guid: 6cdc9c61d272c2b4f9ac48dec0c248d0
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2970954420516166194
+    second: PlatformPlus_0
+  - first:
+      213: -5254134424040928579
+    second: PlatformPlus_1
+  - first:
+      213: 4317263697647263
+    second: PlatformPlus_2
+  - first:
+      213: -4565795393796581536
+    second: PlatformPlus_3
+  - first:
+      213: 915373033683391772
+    second: PlatformPlus_4
+  - first:
+      213: -2680165246131263904
+    second: PlatformPlus_5
+  - first:
+      213: 5112600659714467212
+    second: PlatformPlus_6
+  - first:
+      213: 2630782416164048311
+    second: PlatformPlus_7
+  - first:
+      213: -3760403212338666815
+    second: PlatformPlus_8
+  - first:
+      213: -4780854686376410309
+    second: PlatformPlus_9
+  - first:
+      213: -1921819249798735741
+    second: PlatformPlus_10
+  - first:
+      213: 4063634121152328961
+    second: PlatformPlus_11
+  - first:
+      213: 427090043423055946
+    second: PlatformPlus_12
+  - first:
+      213: -7298925168200957972
+    second: PlatformPlus_13
+  - first:
+      213: -6359117112641424121
+    second: PlatformPlus_14
+  - first:
+      213: -1661315389515160101
+    second: PlatformPlus_15
+  - first:
+      213: -2291295022325782189
+    second: PlatformPlus_16
+  - first:
+      213: 4849463261565440998
+    second: PlatformPlus_17
+  - first:
+      213: 3560152707122226183
+    second: PlatformPlus_18
+  - first:
+      213: -1450206198232359849
+    second: PlatformPlus_19
+  - first:
+      213: 4920324463145163586
+    second: PlatformPlus_20
+  - first:
+      213: 8520064070897767481
+    second: PlatformPlus_21
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PlatformPlus_0
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 403
+        width: 27
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec5e14102bc05c6d0800000000000000
+      internalID: -2970954420516166194
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_1
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 403
+        width: 50
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dba83e434909517b0800000000000000
+      internalID: -5254134424040928579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_2
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 404
+        width: 39
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f96991947865f0000800000000000000
+      internalID: 4317263697647263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_3
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 403
+        width: 34
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 067d3aba74903a0c0800000000000000
+      internalID: -4565795393796581536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_4
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 404
+        width: 16
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c159bad9cee04bc00800000000000000
+      internalID: 915373033683391772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_5
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 404
+        width: 154
+        height: 101
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 066aff4a8e32ecad0800000000000000
+      internalID: -2680165246131263904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_6
+      rect:
+        serializedVersion: 2
+        x: 770
+        y: 255
+        width: 125
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8565b8563b93f640800000000000000
+      internalID: 5112600659714467212
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_7
+      rect:
+        serializedVersion: 2
+        x: 899
+        y: 255
+        width: 123
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7bd4dc44baa628420800000000000000
+      internalID: 2630782416164048311
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_8
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 255
+        width: 120
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c2e05ca33d50dbc0800000000000000
+      internalID: -3760403212338666815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_9
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 255
+        width: 116
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b33c5c72efdf6adb0800000000000000
+      internalID: -4780854686376410309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_10
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 255
+        width: 246
+        height: 135
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3881d3513935455e0800000000000000
+      internalID: -1921819249798735741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_11
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 255
+        width: 207
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 105f07004bde46830800000000000000
+      internalID: 4063634121152328961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_12
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 147
+        width: 27
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a406655b1245de500800000000000000
+      internalID: 427090043423055946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_13
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 147
+        width: 50
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cef393b1b3205ba90800000000000000
+      internalID: -7298925168200957972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_14
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 148
+        width: 39
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70576e79da0efb7a0800000000000000
+      internalID: -6359117112641424121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_15
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 147
+        width: 34
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd52f0c8472d1f8e0800000000000000
+      internalID: -1661315389515160101
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_16
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 148
+        width: 16
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 359a6a6215fa330e0800000000000000
+      internalID: -2291295022325782189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_17
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 148
+        width: 154
+        height: 101
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e35ae09421cc4340800000000000000
+      internalID: 4849463261565440998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_18
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 0
+        width: 120
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7046a2e4604386130800000000000000
+      internalID: 3560152707122226183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_19
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 0
+        width: 116
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75c5a4f6525dfdbe0800000000000000
+      internalID: -1450206198232359849
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_20
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 0
+        width: 246
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24b9e6db701884440800000000000000
+      internalID: 4920324463145163586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlatformPlus_21
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 0
+        width: 207
+        height: 125
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9341e6991295d3670800000000000000
+      internalID: 8520064070897767481
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      PlatformPlus_0: -2970954420516166194
+      PlatformPlus_1: -5254134424040928579
+      PlatformPlus_10: -1921819249798735741
+      PlatformPlus_11: 4063634121152328961
+      PlatformPlus_12: 427090043423055946
+      PlatformPlus_13: -7298925168200957972
+      PlatformPlus_14: -6359117112641424121
+      PlatformPlus_15: -1661315389515160101
+      PlatformPlus_16: -2291295022325782189
+      PlatformPlus_17: 4849463261565440998
+      PlatformPlus_18: 3560152707122226183
+      PlatformPlus_19: -1450206198232359849
+      PlatformPlus_2: 4317263697647263
+      PlatformPlus_20: 4920324463145163586
+      PlatformPlus_21: 8520064070897767481
+      PlatformPlus_3: -4565795393796581536
+      PlatformPlus_4: 915373033683391772
+      PlatformPlus_5: -2680165246131263904
+      PlatformPlus_6: 5112600659714467212
+      PlatformPlus_7: 2630782416164048311
+      PlatformPlus_8: -3760403212338666815
+      PlatformPlus_9: -4780854686376410309
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
