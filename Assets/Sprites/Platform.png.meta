@@ -315,7 +315,7 @@ TextureImporter:
         x: 4
         y: 0
         width: 120
-        height: 130
+        height: 134
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -337,7 +337,7 @@ TextureImporter:
         x: 135
         y: 0
         width: 116
-        height: 130
+        height: 134
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -359,7 +359,7 @@ TextureImporter:
         x: 261
         y: 0
         width: 246
-        height: 130
+        height: 134
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
