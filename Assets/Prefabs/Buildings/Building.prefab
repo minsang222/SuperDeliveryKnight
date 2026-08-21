@@ -209,9 +209,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a4d50fac7c7fb84bbfd54f3ecac132c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlatBuilding
-  StartPoint: {fileID: 8913777844329960484}
-  EndPoint: {fileID: 4335344938937444117}
-  ObstaclePoints:
+  startPoint: {fileID: 8913777844329960484}
+  endPoint: {fileID: 4335344938937444117}
+  obstaclePoints:
   - {fileID: 1443053585992694187}
   destroyOutsideDistance: 5
 --- !u!1 &5855277904190871082

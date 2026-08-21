@@ -3,20 +3,28 @@ using UnityEngine.Serialization;
 
 public class PlatformManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] buildings;
-    [SerializeField] private GameObject[] obstacles;
-    [SerializeField] private float spawnOutsideDistance = 5f;
-    [SerializeField, FormerlySerializedAs("ranOffsetYRange")] private float randomOffsetYRange = 0.5f;
+    private const int DefaultPositionRandomSeed = 0;
 
-    [SerializeField, FormerlySerializedAs("ranOffsetXRangeMax")] private float randomOffsetXRangeMax = 5f;
-    [SerializeField, FormerlySerializedAs("ranOffsetXRangeMin")] private float randomOffsetXRangeMin = 2f;
+    [SerializeField, FormerlySerializedAs("_buildings")] private GameObject[] buildings;
+    [SerializeField, FormerlySerializedAs("_obstacles")] private GameObject[] obstacles;
+    [SerializeField, FormerlySerializedAs("_spawnOutsideDistance")] private float spawnOutsideDistance = 5f;
+    [SerializeField] private Player player;
+    [SerializeField, FormerlySerializedAs("_randomOffsetYRange"), FormerlySerializedAs("ranOffsetYRange")]
+    private float randomOffsetYRange = 0.5f;
+
+    [SerializeField, FormerlySerializedAs("_randomOffsetXRangeMax"), FormerlySerializedAs("ranOffsetXRangeMax")]
+    private float randomOffsetXRangeMax = 5f;
+    [SerializeField, FormerlySerializedAs("_randomOffsetXRangeMin"), FormerlySerializedAs("ranOffsetXRangeMin")]
+    private float randomOffsetXRangeMin = 2f;
     
     private PlatBuilding _lastBuilding;
     private Camera _mainCamera;
+    private System.Random _positionRandom;
 
     private void Awake()
     {
         _mainCamera = Camera.main;
+        _positionRandom = new System.Random(DefaultPositionRandomSeed);
     }
 
     private void Start()
@@ -30,11 +38,21 @@ public class PlatformManager : MonoBehaviour
         if (_lastBuilding.EndPoint.position.x <= GetSpawnX())
         {
             Vector3 nextPosition = _lastBuilding.EndPoint.position + new Vector3(
-                Random.Range(randomOffsetXRangeMin, randomOffsetXRangeMax),
-                Random.Range(-randomOffsetYRange, randomOffsetYRange));
+                NextPositionRange(randomOffsetXRangeMin, randomOffsetXRangeMax),
+                NextPositionRange(-randomOffsetYRange, randomOffsetYRange));
 
             SpawnPlatform(nextPosition);
         }
+    }
+
+    public void SetPositionRandomSeed(int seed)
+    {
+        _positionRandom = new System.Random(seed);
+    }
+
+    private float NextPositionRange(float minInclusive, float maxExclusive)
+    {
+        return minInclusive + (float)_positionRandom.NextDouble() * (maxExclusive - minInclusive);
     }
 
     private void SpawnPlatform(Vector3 startPosition)
@@ -46,16 +64,19 @@ public class PlatformManager : MonoBehaviour
         Vector3 startPointOffset = building.StartPoint.position - building.transform.position;
         building.transform.position = startPosition - startPointOffset;
 
-        var margin = GetComponent<Player>().CanReachChunk(building.StartPoint, building.transform);
+        if (_lastBuilding != null && player != null)
+        {
+            Vector2 margin = player.CanReachChunk(_lastBuilding.EndPoint, building.StartPoint);
+            if (margin.x < 0f)
+            {
+                building.transform.position += new Vector3(margin.x, 0f, 0f);
+            }
 
-        // cascaded pattern
-        if (margin.x < 0)
-        {
-            building.transform.position += new Vector3(margin.x, 0f, 0f);
-        }
-        if (margin.y < 0)
-        {
-            building.transform.position += new Vector3(0f, margin.y, 0f);
+            margin = player.CanReachChunk(_lastBuilding.EndPoint, building.StartPoint);
+            if (margin.y < 0f)
+            {
+                building.transform.position += new Vector3(0f, margin.y, 0f);
+            }
         }
 
         SpawnObstacles(building);
@@ -85,8 +106,36 @@ public class PlatformManager : MonoBehaviour
                 continue;
             }
 
-            Instantiate(obstacles[obstacleIndex], obstaclePoint.position, obstaclePoint.rotation);
+            Instantiate(obstacles[obstacleIndex], obstaclePoint.position, obstaclePoint.rotation, building.transform);
         }
+    }
+
+    public bool TryGetRespawnPoint(float playerX, float dropHeight, out Vector3 position)
+    {
+        PlatBuilding nextBuilding = null;
+
+        foreach (PlatBuilding building in GetComponentsInChildren<PlatBuilding>())
+        {
+            if (building.StartPoint == null || building.StartPoint.position.x <= playerX)
+            {
+                continue;
+            }
+
+            if (nextBuilding == null || building.StartPoint.position.x < nextBuilding.StartPoint.position.x)
+            {
+                nextBuilding = building;
+            }
+        }
+
+        nextBuilding ??= _lastBuilding;
+        if (nextBuilding == null || nextBuilding.StartPoint == null)
+        {
+            position = default;
+            return false;
+        }
+
+        position = nextBuilding.StartPoint.position + Vector3.up * dropHeight;
+        return true;
     }
 
 

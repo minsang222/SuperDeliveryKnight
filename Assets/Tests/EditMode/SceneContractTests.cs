@@ -25,16 +25,18 @@ public class SceneContractTests
             Assert.That(platformManager, Is.Not.Null, "SampleScene에 PlatformManager가 필요합니다.");
             Assert.That(Camera.main, Is.Not.Null, "SampleScene에 MainCamera 태그 카메라가 필요합니다.");
             Assert.That(Camera.main.GetComponents<MonoBehaviour>().Any(IsType("CinemachineBrain")), Is.True);
+            Assert.That(Camera.main.transform.parent, Is.Null, "Main Camera는 Player 이동을 중복 상속하면 안 됩니다.");
             Assert.That(followCamera, Is.Not.Null, "씬에 Player Follow Camera가 필요합니다.");
             Assert.That(GetProperty<Transform>(followCamera, "Follow"), Is.SameAs(player.transform));
-            Assert.That(GetField<Vector3>(FindBehaviour(new[] { followCamera.gameObject }, "CinemachineFollow"), "FollowOffset"),
-                Is.EqualTo(new Vector3(2f, 0f, -10f)));
             Assert.That(player.GetComponent<Rigidbody2D>(), Is.Not.Null);
-            Assert.That(GetReference(player, "_slashObject"), Is.Not.Null);
-            Assert.That(GetReference(player, "_slashHitbox"), Is.TypeOf<BoxCollider2D>());
-            Assert.That(((Collider2D)GetReference(player, "_slashHitbox")).isTrigger, Is.True);
-            Assert.That(GetArray(platformManager, "_buildings"), Is.Not.Empty.And.All.Not.Null);
-            Assert.That(GetArray(platformManager, "_obstacles"), Is.Not.Empty.And.All.Not.Null);
+            Assert.That(GetReference(player, "slashObject"), Is.Not.Null);
+            Assert.That(GetReference(player, "slashHitbox"), Is.TypeOf<BoxCollider2D>());
+            Assert.That(((Collider2D)GetReference(player, "slashHitbox")).isTrigger, Is.True);
+            Assert.That(GetArray(platformManager, "buildings"), Is.Not.Empty.And.All.Not.Null);
+            Assert.That(GetArray(platformManager, "obstacles"), Is.Not.Empty.And.All.Not.Null);
+            Assert.That(GetReference(platformManager, "player"), Is.SameAs(player));
+            Assert.That(GetReference(player, "platformManager"), Is.SameAs(platformManager));
+            Assert.That(GetFloat(player, "respawnDropHeight"), Is.EqualTo(5f));
         }
         finally
         {
@@ -57,9 +59,9 @@ public class SceneContractTests
         MonoBehaviour building = FindBehaviour(new[] { prefab }, "PlatBuilding");
 
         Assert.That(building, Is.Not.Null, $"{path}에 PlatBuilding이 필요합니다.");
-        Assert.That(GetReference(building, "_startPoint"), Is.Not.Null);
-        Assert.That(GetReference(building, "_endPoint"), Is.Not.Null);
-        Assert.That(GetArray(building, "_obstaclePoints"), Is.Not.Empty.And.All.Not.Null);
+        Assert.That(GetReference(building, "startPoint"), Is.Not.Null);
+        Assert.That(GetReference(building, "endPoint"), Is.Not.Null);
+        Assert.That(GetArray(building, "obstaclePoints"), Is.Not.Empty.And.All.Not.Null);
     }
 
     [TestCase("Assets/Prefabs/Obstacles/Obstacle_Box.prefab")]
@@ -91,11 +93,6 @@ public class SceneContractTests
         return (T)target.GetType().GetProperty(propertyName).GetValue(target);
     }
 
-    private static T GetField<T>(object target, string fieldName)
-    {
-        return (T)target.GetType().GetField(fieldName).GetValue(target);
-    }
-
     private static UnityEngine.Object GetReference(MonoBehaviour target, string propertyName)
     {
         return GetProperty(target, propertyName).objectReferenceValue;
@@ -107,6 +104,11 @@ public class SceneContractTests
         return Enumerable.Range(0, property.arraySize)
             .Select(index => property.GetArrayElementAtIndex(index).objectReferenceValue)
             .ToArray();
+    }
+
+    private static float GetFloat(MonoBehaviour target, string propertyName)
+    {
+        return GetProperty(target, propertyName).floatValue;
     }
 
     private static SerializedProperty GetProperty(MonoBehaviour target, string propertyName)

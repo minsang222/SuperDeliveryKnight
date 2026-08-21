@@ -8,8 +8,6 @@ public class Player : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float startSpeed = 10f;
     [SerializeField, Min(0f)] private float jumpForce = 20f;
-    [SerializeField, Min(0f)] private float jumpHoldForce = 20f;
-    [SerializeField, Min(0f)] private float maxJumpHoldTime = 0.5f;
     [SerializeField] private int comboCount;
     [SerializeField] private float comboSpeedIncreaseRate = 0.01f;
     [Header("Hit Stop")]
@@ -19,6 +17,8 @@ public class Player : MonoBehaviour
 
     [SerializeField, Min(0f)]
     private float respawnTime = 2f;
+    [SerializeField, Min(0f)] private float respawnDropHeight = 5f;
+    [SerializeField] private PlatformManager platformManager;
     [SerializeField] private GameObject gameOverPanel;
     [Header("Attack")]
     [SerializeField] private GameObject slashObject;
@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
     [SerializeField, Min(0f)] private float attackDuration = 0.15f;
 
     [SerializeField, Min(0f)]
-    private float attackCooldown = 0.25f;
+    private float attackCooldown = 0.4f;
     [Header("Ground Check")]
     [SerializeField] private float groundCheckDistance = 0.1f;
     [SerializeField, Range(0f, 1f)] private float minimumGroundNormalY = 0.7f;
@@ -35,8 +35,6 @@ public class Player : MonoBehaviour
     private Rigidbody2D _rigidbody;
     private Collider2D _playerCollider;
     private bool _isGrounded;
-    private bool _isHoldingJump;
-    private float _jumpHoldElapsed;
     private float _airborneElapsed;
     private float _respawnElapsed;
     private Coroutine _attackCoroutine;
@@ -111,11 +109,6 @@ public class Player : MonoBehaviour
             Jump();
         }
 
-        if (Keyboard.current == null || !Keyboard.current.zKey.isPressed)
-        {
-            _isHoldingJump = false;
-        }
-
         if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
         {
             Attack();
@@ -136,15 +129,9 @@ public class Player : MonoBehaviour
 
         if (_isRespawning)
         {
-            _respawnElapsed += Time.fixedDeltaTime;
-            if (_respawnElapsed >= respawnTime)
-            {
-                _isRespawning = false;
-                // respawn coroutine 종료
-            }
+            return;
         }
 
-        // ApplyJumpHoldForce();
         _isGrounded = IsGrounded();
 
         if (_isGrounded)
@@ -181,23 +168,7 @@ public class Player : MonoBehaviour
     private void Jump()
     {
         _rigidbody.linearVelocityY = jumpForce;
-        _rigidbody.AddForce(Vector2.up * jumpHoldForce, ForceMode2D.Force);
         _isGrounded = false;
-        _isHoldingJump = true;
-        _jumpHoldElapsed = 0f;
-    }
-
-    [Obsolete("점프 출력 고정",  true)]
-    private void ApplyJumpHoldForce()
-    {
-        if (!_isHoldingJump || _jumpHoldElapsed >= maxJumpHoldTime || _rigidbody.linearVelocityY <= 0f)
-        {
-            _isHoldingJump = false;
-            return;
-        }
-
-        _rigidbody.AddForce(Vector2.up * jumpHoldForce, ForceMode2D.Force);
-        _jumpHoldElapsed += Time.fixedDeltaTime;
     }
 
     private void Attack()
@@ -230,14 +201,14 @@ public class Player : MonoBehaviour
             slashHitbox.enabled = false;
         }
         
-        yield return new WaitForSeconds(attackDuration);
+        yield return new WaitForSeconds(Mathf.Max(0f, attackDuration - Time.fixedDeltaTime));
 
         if (slashObject != null)
         {
             slashObject.SetActive(false);
         }
 
-        yield return new WaitForSeconds(attackCooldown);
+        yield return new WaitForSeconds(Mathf.Max(0f, attackCooldown - attackDuration));
         
         _attackCoroutine = null;
         
@@ -275,15 +246,39 @@ public class Player : MonoBehaviour
 
     private void Respawn()
     {
-        // TEMP, TODO: 다음 청크 계산해서 위에 소환
-        _isGameOver = true;
-        // 이동·물리·공격 연출을 함께 멈추는 게임잼용 단일 일시정지 지점이다.
-        Time.timeScale = 0f;
-
-        if (gameOverPanel != null)
+        if (_isRespawning)
         {
-            gameOverPanel.SetActive(true);
+            return;
         }
+
+        _isRespawning = true;
+        _respawnElapsed = 0f;
+        StartCoroutine(RespawnRoutine());
+    }
+
+    private IEnumerator RespawnRoutine()
+    {
+        comboCount = 0;
+        _rigidbody.linearVelocity = Vector2.zero;
+
+        if (platformManager != null &&
+            platformManager.TryGetRespawnPoint(transform.position.x, respawnDropHeight, out Vector3 respawnPosition))
+        {
+            transform.position = respawnPosition;
+        }
+        else
+        {
+            transform.position += Vector3.up * respawnDropHeight;
+        }
+
+        while (_respawnElapsed < respawnTime)
+        {
+            yield return null;
+            _respawnElapsed += Time.deltaTime;
+        }
+
+        _airborneElapsed = 0f;
+        _isRespawning = false;
     }
     
     // (연구 필요) 0.5f * 9.8f 부분은 Rigidbody 중력 물리가 예측 가능하게 동작해야 올바른 식이 된다.
@@ -293,11 +288,17 @@ public class Player : MonoBehaviour
         var (x1, y1) = (start.position.x, start.position.y);
         var (x2, y2) = (end.position.x, end.position.y);
 
-        var timeLanding = (x2 - x1) / (startSpeed);
-        var heightLanding = y1 + (jumpForce * timeLanding - 0.5f * 9.8f * Mathf.Pow(timeLanding, 2));
+        float gravity = Mathf.Abs(Physics2D.gravity.y * _rigidbody.gravityScale);
+        if (startSpeed <= 0f || gravity <= 0f)
+        {
+            return new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+        }
 
-        var timePeak = (Mathf.Abs(_rigidbody.linearVelocityY)) / 9.8f;
-        var widthLanding = x1 + (startSpeed * 2f * timePeak);
+        float timeLanding = (x2 - x1) / startSpeed;
+        float heightLanding = y1 + jumpForce * timeLanding - 0.5f * gravity * timeLanding * timeLanding;
+
+        float flightTime = 2f * jumpForce / gravity;
+        float widthLanding = x1 + startSpeed * flightTime;
 
         return new Vector2(widthLanding - x2 - SafetyMargin, heightLanding - y2 - SafetyMargin);
     }

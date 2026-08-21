@@ -148,16 +148,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47a4258d8be5c1d41b93708cd7490755, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlatformManager
-  _buildings:
+  buildings:
   - {fileID: 5361540676778321835, guid: 33d2c9e8a92d7b74e9a2dbb6164cac41, type: 3}
   - {fileID: 5361540676778321835, guid: 29acb46915b5b9643815db7a2badea7d, type: 3}
-  _obstacles:
+  obstacles:
   - {fileID: 7169398239668604163, guid: af2893fd0fdf5074f8866ca43b8e1b4c, type: 3}
   - {fileID: 6583699304850313756, guid: 25990e9954556514882d1a16446a71d9, type: 3}
-  _spawnOutsideDistance: 1
-  _randomOffsetYRange: 3
-  _randomOffsetXRangeMax: 6
-  _randomOffsetXRangeMin: 4
+  spawnOutsideDistance: 5
+  player: {fileID: 1140592673}
+  randomOffsetYRange: 0.5
+  randomOffsetXRangeMax: 5
+  randomOffsetXRangeMin: 2
 --- !u!4 &208336674
 Transform:
   m_ObjectHideFlags: 0
@@ -576,7 +577,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -584,7 +585,7 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
@@ -724,19 +725,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   startSpeed: 10
-  jumpForce: 10
-  jumpHoldForce: 10
-  maxJumpHoldTime: 0.5
+  jumpForce: 20
   comboCount: 0
   comboSpeedIncreaseRate: 0.01
   hitStopDuration: 0.05
   maxAirborneTime: 2.5
   respawnTime: 2
+  respawnDropHeight: 5
+  platformManager: {fileID: 208336673}
   gameOverPanel: {fileID: 0}
   slashObject: {fileID: 581209602}
   slashHitbox: {fileID: 1140592674}
   attackDuration: 0.15
-  attackCooldown: 0.25
+  attackCooldown: 0.4
   groundCheckDistance: 0.1
   minimumGroundNormalY: 0.7
   groundLayer:

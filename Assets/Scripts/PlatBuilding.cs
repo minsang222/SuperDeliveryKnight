@@ -3,16 +3,17 @@ using UnityEngine.Serialization;
 
 public class PlatBuilding : MonoBehaviour
 {
-    [SerializeField, FormerlySerializedAs("StartPoint")] private Transform _startPoint;
-    [SerializeField, FormerlySerializedAs("EndPoint")] private Transform _endPoint;
-    [SerializeField, FormerlySerializedAs("ObstaclePoints")] private Transform[] _obstaclePoints;
-    [SerializeField, FormerlySerializedAs("destroyOutsideDistance"), Min(0f)] private float _destroyOutsideDistance = 5f;
+    [SerializeField, FormerlySerializedAs("_startPoint"), FormerlySerializedAs("StartPoint")] private Transform startPoint;
+    [SerializeField, FormerlySerializedAs("_endPoint"), FormerlySerializedAs("EndPoint")] private Transform endPoint;
+    [SerializeField, FormerlySerializedAs("_obstaclePoints"), FormerlySerializedAs("ObstaclePoints")] private Transform[] obstaclePoints;
+    [SerializeField, FormerlySerializedAs("_destroyOutsideDistance"), FormerlySerializedAs("destroyOutsideDistance"), Min(0f)]
+    private float destroyOutsideDistance = 5f;
 
     private Camera _mainCamera;
 
-    public Transform StartPoint => _startPoint;
-    public Transform EndPoint => _endPoint;
-    public Transform[] ObstaclePoints => _obstaclePoints;
+    public Transform StartPoint => startPoint;
+    public Transform EndPoint => endPoint;
+    public Transform[] ObstaclePoints => obstaclePoints;
 
     private void Awake()
     {
@@ -21,7 +22,7 @@ public class PlatBuilding : MonoBehaviour
 
     private void Update()
     {
-        if (_mainCamera == null || _endPoint == null)
+        if (_mainCamera == null || endPoint == null)
         {
             return;
         }
@@ -30,7 +31,7 @@ public class PlatBuilding : MonoBehaviour
         float leftScreenX = _mainCamera.ViewportToWorldPoint(
             new Vector3(0f, 0.5f, -_mainCamera.transform.position.z)).x;
 
-        if (_endPoint.position.x < leftScreenX - _destroyOutsideDistance)
+        if (endPoint.position.x < leftScreenX - destroyOutsideDistance)
         {
             Destroy(gameObject);
         }

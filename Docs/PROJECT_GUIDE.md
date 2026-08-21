@@ -37,7 +37,7 @@ yield return new WaitForSecondsRealtime(hitStopDuration);
 GDD §10을 그대로 따른다.
 
 - 클래스, 메서드, public 프로퍼티: `PascalCase`
-- private 필드: `_camelCase`; 지역 변수: `camelCase`
+- Unity 직렬화 필드: `camelCase`; 그 외 private 필드: `_camelCase`; 지역 변수: `camelCase`
 - Inspector 노출: `[SerializeField] private`; public 필드 금지
 - 한 파일에 한 클래스
 - Unity 이벤트 함수는 클래스 위쪽에 생명주기 순서대로 배치
@@ -45,6 +45,8 @@ GDD §10을 그대로 따른다.
 - GDD의 `TUNE-*` 값은 직렬화 필드 또는 이름 있는 상수로 둔다.
 
 이름만 맞추는 대규모 변경은 게임잼 중 하지 않는다. 직렬화 필드 이름을 바꿔야 한다면 `[FormerlySerializedAs]`로 기존 씬·프리팹 값을 보존한다.
+
+`[Obsolete]`는 게임잼 저장소에 호환 계층으로 남기지 않는다. 리팩터링에서 `[Obsolete]` 멤버가 생기면 모든 호출부를 새 경로로 옮긴 뒤 해당 멤버와 호출부를 같은 변경에서 제거한다.
 
 ## 4. SOLID 적용선
 
@@ -66,17 +68,17 @@ SOLID는 클래스 수를 늘리는 목표가 아니라 변경 위험을 줄이�
 | 영역 | 현재 구현 | GDD v0.2 | 판단 |
 |---|---|---|---|
 | F1 이동 | 자동 우측 이동만 존재 | 좌우 입력 없는 자동 전진과 시스템 제어 감가속·리스폰 | 2버튼 재설계 확정. 카메라·연출은 후속 작업 |
-| F2 점프 | 누르는 동안 힘을 더하는 모델 | T1/T2 감쇠 중력 모델 | 기능 차이. 현재 수직 슬라이스를 먼저 보존 |
-| F3 공격 | 공격 재입력 시 판정 시간을 다시 시작 | 공격 중 재입력 무시 | 기능 차이 |
+| F2 점프 | 고정 점프 출력과 Unity 중력 | 상수 중력의 이차 궤적 | `TUNE-P2`, `TUNE-P3`는 구현하지 않음 |
+| F3 공격 | 입력 직후 한 물리 판정, 별도 연출·쿨타임 | 입력 순간 판정 | `attackDuration`은 연출 상태, `attackCooldown`은 재입력 제한 |
 | F3 파괴 | 장애물 전체를 밀어낸 뒤 지연 삭제 | 파편 플립북 | 임시 시각 연출로 유지 |
 | F4 패링 | 없음 | 총알 존재 중 공격 시 성립 | 미구현 기능 |
 | F5 콤보 | 값과 속도식은 있으나 성공 시 증가하지 않음 | 파괴·패링 시 증가, 피격 시 초기화 | 미구현 기능 |
-| 체력/런 종료 | 5초 이상 공중이면 즉시 게임 오버 | 체력 0 또는 목표 도달 | 프로토타입 임시 규칙 |
+| 체력/런 종료 | 장시간 공중이면 다음 청크 위로 리스폰 | 체력 0 또는 목표 도달 | 현재는 콤보 초기화 후 5 유닛 위에서 낙하 |
 | F6 생성 | 각 슬롯마다 장애물/빈칸을 독립 선택 | 청크별 슬롯 세트 0/1/2 선택 | 기능 차이 |
 | 청크 정리 | 청크만 카메라 뒤에서 삭제 | 소속 스나이퍼 생명주기까지 보장 | 장애물·향후 스나이퍼 정리 계약 필요 |
 | 카메라 | 씬에 Cinemachine Brain/Follow 카메라 저장 | 씬 구성 + Pixel Perfect | 책임 분리 완료. Pixel Perfect는 별도 기능 작업 |
 | 튜닝 | 콤보 증가율을 직렬화 필드로 관리 | `TUNE-C2`로 관리 | 구조 일치, 값은 플레이 테스트 대상 |
-| 컨벤션 | 직렬화 private 필드와 `_camelCase` 사용 | `[SerializeField] private`, `_camelCase` | 기존 값은 `FormerlySerializedAs`로 보존 |
+| 컨벤션 | 직렬화 private 필드는 `camelCase` | `[SerializeField] private` | 비직렬화 private만 `_camelCase`, 기존 값은 `FormerlySerializedAs`로 보존 |
 
 ## 6. 테스트 원칙
 

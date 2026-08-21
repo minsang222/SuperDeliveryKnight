@@ -7,14 +7,17 @@
 - 조작은 점프와 공격 두 버튼만 사용한다. 좌우 이동 입력은 구현하지 않는다.
 - 수평 이동과 화면 내 위치는 자동 전진, 감가속, 리스폰, 카메라 연출이 통제한다.
 - 현재 작업은 F2 점프 궤적과 F6 도달 가능한 청크 생성까지만 포함한다.
+- F6 계산을 단순한 이차함수로 유지하기 위해 `TUNE-P2`, `TUNE-P3` 감쇠 중력은 구현하지 않는다.
+- 공격 판정은 입력 순간 한 번만 수행한다. `attackDuration`은 캐릭터 연출 상태, `attackCooldown`은 재공격 제한만 나타낸다.
+- 장시간 공중 상태는 게임오버가 아니라 `_isRespawning` 상태로 전환한다.
 - 피격, 체력, 콤보, 패링은 아래 대기 큐의 조건을 다시 검토한 뒤 구현한다.
 
 ## 현재 상태
 
 | 우선순위 | 작업 | 상태 |
 |---|---|---|
-| P0 | Q1 F2 점프 궤적 | RED — 계약 테스트 준비됨 |
-| P0 | Q2 F6 도달 가능한 청크 | RED — 생성·소유권 테스트 준비됨 |
+| P0 | Q1 F2 점프 궤적 | 자동 검증 통과 — 사람 플레이 대기 |
+| P0 | Q2 F6 도달 가능한 청크 | 자동 검증 통과 — 60초 플레이 대기 |
 | P1 | Q3 F1 자동 조작과 카메라 | 대기 |
 | P1 | Q4 F3 피격과 체력 | 대기 |
 | P2 | Q5 F5 콤보 | 대기 |
@@ -29,36 +32,26 @@
 - [ ] 접지 중 점프 입력 1회만 수직 속도를 부여하며 공중 입력은 무시한다.
 - [ ] 점프 높이는 버튼을 누른 시간에 의존하지 않는다. 기존 hold force 방식은 제거한다.
 - [ ] 상승 중에는 정상 중력을 사용한다.
-- [ ] 낙하 시작 후 `TUNE-P2`까지 중력 배율 1을 유지한다.
-- [ ] `TUNE-P2`부터 `TUNE-P3`까지 중력 배율을 1에서 0으로 선형 감소시킨다.
-- [ ] `TUNE-P3` 이후 수직 속도가 더 빨라지지 않아 등속 낙하한다.
-- [ ] `TUNE-P2 < TUNE-P3`를 Inspector에서 보장한다.
-- [ ] 계산용 궤적과 실제 `Player` 물리 결과가 같은 규칙을 사용한다.
+- [ ] 상승과 낙하 모두 일정한 중력을 사용해 궤적을 이차함수로 유지한다.
+- [ ] `TUNE-P2`, `TUNE-P3` 필드와 감쇠 중력 코드를 만들지 않는다.
+- [ ] 계산용 궤적은 실제 `Rigidbody2D.gravityScale`과 같은 중력을 사용한다.
 
 **최소 인터페이스:**
 
 ```csharp
-public static float JumpTrajectory.GetFallGravityScale(
-    float fallElapsed,
-    float fadeStartTime,
-    float fadeEndTime);
-
-public bool Player.CanReachChunk(Vector2 offset);
+public Vector2 Player.CanReachChunk(Transform start, Transform end);
 ```
 
-`CanReachChunk`는 콤보가 0인 기본 속도와 안전 마진을 사용한다. F6 외 소비자가 생기기 전에는 추가 프로퍼티나 설정 클래스를 만들지 않는다.
-
-`Player`에는 `_fallGravityFadeStartTime`, `_fallGravityFadeEndTime`, `_jumpReachSafetyMargin`을 직렬화하고 씬에서 `TUNE-P2 < TUNE-P3`, 안전 마진 양수를 유지한다. `PlatformManager`는 같은 판정을 사용하도록 씬의 `Player`를 `_player`로 참조한다.
+`CanReachChunk`는 콤보가 0인 기본 속도, 현재 중력과 안전 마진으로 수평·수직 여유를 반환한다. F6 외 소비자가 생기기 전에는 별도 궤적 타입이나 설정 클래스를 만들지 않는다.
 
 **자동 검증:**
 
-- `TraversalContractTests`: T1 이전 1, 감쇠 중간 0.5, T2 이후 0을 검증한다.
-- `TraversalContractTests`: 보수적인 평지 간격은 허용하고 최대 상승 높이와 착지 시간을 넘는 오프셋은 거부한다.
-- `SceneSmokeTests`: 실제 낙하 속도가 T2 이후 증가하지 않는지 확인한다.
+- `TraversalContractTests`: 보수적인 평지 간격에는 양수 여유를, 불가능한 간격에는 음수 여유를 반환하는지 검증한다.
+- `SceneSmokeTests`: 고정 시드로 생성된 청크의 수평·수직 여유가 모두 음수가 아닌지 검증한다.
 
 ## 대기 — Q2: F6 도달 가능한 청크 생성
 
-**선행 조건:** Q1의 궤적 테스트가 통과해야 한다.
+**선행 조건:** Q1의 이차 궤적 계산이 실제 Rigidbody2D 중력과 일치해야 한다.
 
 **완료 조건:**
 
@@ -82,6 +75,14 @@ public bool Player.CanReachChunk(Vector2 offset);
 - 감가속과 리스폰 중에도 플레이어를 화면 안에 유지한다.
 - 카메라는 전방 판단 공간을 확보하고 점프 중 과도한 세로 흔들림을 만들지 않는다.
 - Q1/Q2가 안정된 뒤 감가속과 화면 위치 복귀 연출을 별도 설계한다.
+
+## 완료 — 공격과 리스폰 상태 계약
+
+- 공격 히트박스는 입력 직후 한 물리 판정까지만 활성화한다.
+- `attackDuration` 동안 캐릭터 공격 연출만 유지한다.
+- 입력 시점부터 `attackCooldown`이 끝날 때까지 재공격을 막는다. `attackDuration`과 합산하지 않는다.
+- `Respawn()`은 `_isRespawning`을 켜고 `_respawnElapsed`를 초기화하며 게임 시간을 멈추지 않는다.
+- 다음 청크의 시작점보다 `5f` 위에서 낙하시키고 `respawnTime` 뒤 `_isRespawning`을 해제한다.
 
 ## 대기 — Q4: F3 피격과 체력
 
@@ -113,8 +114,27 @@ public bool Player.CanReachChunk(Vector2 offset);
 4. Q2를 최소 구현하고 60초 사람 플레이를 수행한다.
 5. Q3 이후는 큐의 조건을 재검토한 뒤 하나씩 활성화한다.
 
-## RED 기준선 (2026-08-21)
+## 폐기된 RED 기준선 (2026-08-21)
 
 - EditMode: 전체 12개 중 기존 계약 5개 통과, 새 F2/F6 계약 7개 실패.
 - PlayMode: 전체 4개 중 기존 스모크 1개 통과, 새 계약 3개 실패.
-- 기대 실패 원인: `JumpTrajectory`, `Player.CanReachChunk(Vector2)`, 낙하 튜닝 필드, `PlatformManager._player`, 장애물 청크 소유권이 아직 없다.
+- 이 기준선은 `TUNE-P2`, `TUNE-P3` 폐기 전 계약이므로 더 이상 완료 판정에 사용하지 않는다.
+
+## Q1/Q2 최초 구현 진단 기록 (2026-08-21)
+
+- EditMode: 5개 중 2개 통과, 3개 실패.
+- PlayMode 전체: 6개 중 1개 통과, 5개 실패. 빈 청크 배열의 첫 예외가 뒤 테스트까지 오염하므로 기능별 필터 결과를 함께 본다.
+- Q1 상수 중력: 필터 테스트 통과. 다만 `CanReachChunk`가 씬의 `gravityScale`과 점프 시 한 번 더하는 힘을 계산에 포함하지 않아 실제 궤적과 아직 일치하지 않는다.
+- Q2 생성: `PlatformManager.buildings`와 `obstacles`가 필드명 변경 중 빈 배열로 저장되어 시작 즉시 실패한다. 생성기는 별도 GameObject이므로 `GetComponent<Player>()`도 유효하지 않다.
+- 공격: 판정과 연출 분리는 통과했지만, 재공격 가능 시점이 `attackDuration + attackCooldown`으로 계산되어 입력 기준 쿨타임 계약은 실패한다.
+- 리스폰: `_isRespawning` 필드는 있지만 `Respawn()`이 상태를 켜지 않은 채 게임오버와 `timeScale = 0`을 실행해 실패한다.
+- 컨벤션: `PlatBuilding` 직렬화 필드가 아직 `_camelCase`다. `Player.ApplyJumpHoldForce()`와 주석 처리된 호출부도 새 `[Obsolete]` 제거 규칙의 정리 대상이다.
+
+## Q1/Q2 수정 후 검증 결과 (2026-08-21)
+
+- EditMode: 5/5 통과.
+- PlayMode: 8/8 통과.
+- `CanReachChunk`는 실제 `Physics2D.gravity * Rigidbody2D.gravityScale`과 고정 점프 출력을 사용한다.
+- 생성 청크 30개의 도달 여유와 생성 장애물의 청크 소유권을 고정 시드로 검증했다.
+- 낙사 시 콤보를 초기화하고 플레이어 앞의 가장 가까운 청크 시작점보다 `5f` 위에서 낙하시킨다.
+- 남은 완료 조건은 에디터에서 60초 사람 플레이로 진행 불가 구간과 리스폰 연출 감각을 확인하는 것이다.
