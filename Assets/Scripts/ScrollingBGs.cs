@@ -11,13 +11,9 @@ public class ScrollingBGs : MonoBehaviour
     [SerializeField, Min(0f)] private float fgMovespdMultiplier;
     [SerializeField, Min(0.01f)] private float bgOffset = 20f;
     [SerializeField, Min(0.01f)] private float fgOffset = 20f;
-    [SerializeField] private float fixedY = 0f;
 
-    private void Start()
-    {
-        SetLayerY(bgs, fixedY);
-        SetLayerY(fgs, fixedY);
-    }
+    private bool _hasPreviousPlayerY;
+    private float _previousPlayerY;
 
     private void Update()
     {
@@ -29,32 +25,19 @@ public class ScrollingBGs : MonoBehaviour
         Rigidbody2D playerRigidbody = Player.Instance.GetComponent<Rigidbody2D>();
         float playerMoveSpeed = playerRigidbody != null ? playerRigidbody.linearVelocityX : 0f;
 
-        float playerX = Player.Instance.transform.position.x;
-        ScrollLayer(bgs, playerMoveSpeed * bgMovespdMultiplier, bgOffset, playerX);
-        ScrollLayer(fgs, playerMoveSpeed * fgMovespdMultiplier, fgOffset, playerX);
+        Vector3 playerPosition = Player.Instance.transform.position;
+        float playerYMovement = _hasPreviousPlayerY ? playerPosition.y - _previousPlayerY : 0f;
+        _previousPlayerY = playerPosition.y;
+        _hasPreviousPlayerY = true;
+
+        ScrollLayer(bgs, playerMoveSpeed * bgMovespdMultiplier, playerYMovement * bgMovespdMultiplier,
+            bgOffset, playerPosition.x);
+        ScrollLayer(fgs, playerMoveSpeed * fgMovespdMultiplier, playerYMovement * fgMovespdMultiplier,
+            fgOffset, playerPosition.x);
     }
 
-    private static void SetLayerY(GameObject[] sprites, float y)
-    {
-        if (sprites == null)
-        {
-            return;
-        }
-
-        foreach (GameObject sprite in sprites)
-        {
-            if (sprite == null)
-            {
-                continue;
-            }
-
-            Vector3 position = sprite.transform.position;
-            position.y = y;
-            sprite.transform.position = position;
-        }
-    }
-
-    private static void ScrollLayer(GameObject[] sprites, float moveSpeed, float offset, float playerX)
+    private static void ScrollLayer(GameObject[] sprites, float moveSpeed, float verticalMovement,
+        float offset, float playerX)
     {
         if (sprites == null || sprites.Length == 0)
         {
@@ -71,6 +54,7 @@ public class ScrollingBGs : MonoBehaviour
             Transform spriteTransform = sprite.transform;
             Vector3 position = spriteTransform.position;
             position.x -= moveSpeed * Time.deltaTime;
+            position.y += verticalMovement;
             spriteTransform.position = position;
         }
 

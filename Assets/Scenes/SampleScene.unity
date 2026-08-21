@@ -213,7 +213,7 @@ Transform:
   m_GameObject: {fileID: 240105688}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 25, y: 0, z: 0}
+  m_LocalPosition: {x: 25, y: 2.05, z: 0}
   m_LocalScale: {x: 10, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1642,11 +1642,10 @@ MonoBehaviour:
   - {fileID: 1610433025}
   - {fileID: 240105688}
   fgs: []
-  bgMovespdMultiplier: 0.5
-  fgMovespdMultiplier: 0.5
+  bgMovespdMultiplier: 0.2
+  fgMovespdMultiplier: 0.2
   bgOffset: 25
   fgOffset: 20
-  fixedY: 0
 --- !u!1 &1699150558
 GameObject:
   m_ObjectHideFlags: 0
