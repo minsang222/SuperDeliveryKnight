@@ -16,6 +16,8 @@ public class Clock : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        Instance = this;
         // 스테이지 시작 시, 클락 시작과 함께 시간 초기화
         _timeElapsed = 0;
         _fTimeElapsed = 0.001f;
@@ -24,11 +26,13 @@ public class Clock : MonoBehaviour
     void Update()
     {
         // Clock 구현을 위한 고정 델타프레임.
-        _fTimeElapsed += Time.unscaledDeltaTime;
         var tmp = _timeElapsed;
+        _fTimeElapsed += Time.unscaledDeltaTime;
         _timeElapsed = Mathf.FloorToInt(_fTimeElapsed * 720f);
-        if (tmp % 300 > _timeElapsed % 300)
+        if (Mathf.FloorToInt(tmp / 300) < Mathf.FloorToInt(_timeElapsed / 300))
+        {
             Heartbeat?.Invoke(_timeElapsed);
+        }
     }
 
     private void OnDestroy()
