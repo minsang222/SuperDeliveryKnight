@@ -31,6 +31,8 @@ public class PlatformManager : MonoBehaviour
             return;
         }
 
+        Instance = this;
+
         DefaultPositionRandomSeed = 0;
         _mainCamera = Camera.main;
         _positionRandom = new System.Random(DefaultPositionRandomSeed);

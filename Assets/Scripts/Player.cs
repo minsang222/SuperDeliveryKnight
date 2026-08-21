@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip parrySFX;
-    
+
     [SerializeField, Min(0f)]
     private float respawnTime = 2f;
     [SerializeField, Min(0f)] private float respawnDropHeight = 5f;
@@ -101,11 +101,12 @@ public class Player : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        Instance = this;
         // 게임 오버나 히트스톱 중 재시작되어도 새 씬은 정상 시간으로 출발해야 한다.
         Time.timeScale = 1f;
         _rigidbody = GetComponent<Rigidbody2D>();
         _playerCollider = GetComponent<Collider2D>();
-        Sniper.Instance.HasAimed += ReadyParry;
 
         if (anim == null)
         {
@@ -132,6 +133,12 @@ public class Player : MonoBehaviour
             gameOverPanel.SetActive(false);
         }
     }
+
+    private void Start()
+    {
+        Sniper.Instance.HasAimed += ReadyParry;
+    }
+
     void Update()
     {
         if (_isGameOver)
