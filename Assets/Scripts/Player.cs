@@ -19,14 +19,14 @@ public class Player : MonoBehaviour
     [SerializeField, Min(0f)] private float attack12Interval = 0.2f;
     [SerializeField, Min(0f)] private float afterAttackInterval = 1f;
     [Header("Game Over")]
-    [SerializeField, Min(0f)] private float maxAirborneTime = 2.5f;
+    [SerializeField, Min(0f)] private float maxAirborneTime = 2f;
 
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip parrySFX;
 
     [SerializeField, Min(0f)]
-    private float respawnTime = 2f;
-    [SerializeField, Min(0f)] private float respawnDropHeight = 5f;
+    private float respawnTime = 1f;
+    [SerializeField, Min(0f)] private float respawnDropHeight = 3f;
     [SerializeField] private PlatformManager platformManager;
     [SerializeField] private GameObject gameOverPanel;
     [Header("Attack")]

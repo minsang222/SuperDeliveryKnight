@@ -107,6 +107,31 @@ public class SniperClockTests
         UnityEngine.Object.DestroyImmediate(sniper.gameObject);
     }
 
+    [Test]
+    public void RedRayDuration_EndsHalfParryWindowBeforeShot()
+    {
+        float duration = (float)GameType("Sniper")
+            .GetMethod("RedRayDuration", BindingFlags.Static | BindingFlags.NonPublic)
+            .Invoke(null, new object[] { 0.8333f, 0.1f });
+
+        Assert.That(duration, Is.EqualTo(0.7833f).Within(0.0001f));
+    }
+
+    [Test]
+    public void RayColor_TweensEveryColorChannel()
+    {
+        Color color = (Color)GameType("Sniper")
+            .GetMethod("RayColor", BindingFlags.Static | BindingFlags.NonPublic)
+            .Invoke(null, new object[]
+            {
+                new Color(0.2f, 0.4f, 0.6f, 0.8f),
+                new Color(1f, 0f, 0.2f, 0.4f),
+                0.25f
+            });
+
+        Assert.That(color, Is.EqualTo(new Color(0.4f, 0.3f, 0.5f, 0.7f)));
+    }
+
     private static MonoBehaviour AddComponent(string name)
     {
         return new GameObject(name).AddComponent(GameType(name)) as MonoBehaviour;
