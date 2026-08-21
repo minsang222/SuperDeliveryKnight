@@ -36,6 +36,11 @@ public class Player : MonoBehaviour
 
     [SerializeField, Min(0f)]
     private float attackCooldown = 0.4f;
+    [Header("Stumble")]
+    [SerializeField, Min(0f)] private float stumbleKnockbackSpeed = 4f;
+    [SerializeField, Min(0f)] private float stumbleKnockbackDuration = 0.15f;
+    [SerializeField, Range(0f, 1f)] private float stumbleStartSpeedMultiplier = 0.25f;
+    [SerializeField, Min(0f)] private float stumbleRecoveryDuration = 4.5f;
     [Header("Ground Check")]
     [SerializeField] private float groundCheckDistance = 0.1f;
     [SerializeField, UnityEngine.Range(0f, 1f)] private float minimumGroundNormalY = 0.7f;
@@ -60,6 +65,8 @@ public class Player : MonoBehaviour
     private int _nextParryWindowId;
     private bool _isGameOver;
     private bool _isRespawning;
+    private bool _isRecoveringFromStumble;
+    private float _stumbleElapsed;
     private AttackType _lastAttackType;
     private float _lastAttackTime = float.NegativeInfinity;
 
@@ -92,6 +99,20 @@ public class Player : MonoBehaviour
         {
             anim.SetTrigger(IsStumbleHash);
         }
+    }
+
+    // Obstacle의 일반 물리 충돌에서만 호출된다. 검 판정은 Trigger이므로 이 경로를 타지 않는다.
+    public void NotifyObstacleCollision()
+    {
+        if (_isGameOver || _isRespawning || _rigidbody == null)
+        {
+            return;
+        }
+
+        _isRecoveringFromStumble = true;
+        _stumbleElapsed = 0f;
+        _rigidbody.linearVelocityX = -stumbleKnockbackSpeed;
+        NotifyStumble();
     }
 
     private void Awake()
@@ -177,7 +198,14 @@ public class Player : MonoBehaviour
     
     private void Move()
     {
-        _rigidbody.linearVelocityX = startSpeed * (1 + comboSpeedIncreaseRate * comboCount);
+        if (_isRecoveringFromStumble && _stumbleElapsed < stumbleKnockbackDuration)
+        {
+            // 넉백 중에는 이동 속도로 덮어쓰지 않아 실제로 뒤로 밀려난다.
+            return;
+        }
+
+        float recoveryMultiplier = GetStumbleRecoveryMultiplier();
+        _rigidbody.linearVelocityX = startSpeed * (1 + comboSpeedIncreaseRate * comboCount) * recoveryMultiplier;
     }
 
     private void FixedUpdate()
@@ -191,6 +219,8 @@ public class Player : MonoBehaviour
         {
             return;
         }
+
+        UpdateStumbleRecovery();
 
         _isGrounded = IsGrounded();
         UpdateMovementAnimationParameters();
@@ -338,6 +368,35 @@ public class Player : MonoBehaviour
         float verticalVelocity = _rigidbody.linearVelocityY;
         anim.SetBool(IsJumpingHash, !_isGrounded && verticalVelocity > 0f);
         anim.SetBool(IsFallingHash, !_isGrounded && verticalVelocity < 0f);
+    }
+
+    private void UpdateStumbleRecovery()
+    {
+        if (!_isRecoveringFromStumble)
+        {
+            return;
+        }
+
+        _stumbleElapsed += Time.fixedDeltaTime;
+        if (_stumbleElapsed >= stumbleKnockbackDuration + stumbleRecoveryDuration)
+        {
+            _isRecoveringFromStumble = false;
+        }
+    }
+
+    private float GetStumbleRecoveryMultiplier()
+    {
+        if (!_isRecoveringFromStumble)
+        {
+            return 1f;
+        }
+
+        float recoveryElapsed = Mathf.Max(0f, _stumbleElapsed - stumbleKnockbackDuration);
+        float recoveryProgress = stumbleRecoveryDuration <= 0f
+            ? 1f
+            : Mathf.Clamp01(recoveryElapsed / stumbleRecoveryDuration);
+
+        return Mathf.Lerp(stumbleStartSpeedMultiplier, 1f, recoveryProgress);
     }
 
     private IEnumerator ApplyHitStop()

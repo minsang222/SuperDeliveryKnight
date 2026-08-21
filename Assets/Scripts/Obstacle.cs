@@ -15,11 +15,20 @@ public class Obstacle : MonoBehaviour
     private Collider2D[] _colliders;
     private Rigidbody2D _rigidbody;
     private bool _isDestroyed;
+    private const float LandingContactTolerance = 0.05f;
 
     private void Awake()
     {
         _colliders = GetComponentsInChildren<Collider2D>();
         _rigidbody = GetComponent<Rigidbody2D>();
+
+        // 매달린 장애물은 파괴되기 전까지 현재 위치에 고정한다.
+        if (type == Type.Hanging && _rigidbody != null)
+        {
+            _rigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
+            _rigidbody.linearVelocity = Vector2.zero;
+            _rigidbody.angularVelocity = 0f;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -29,45 +38,87 @@ public class Obstacle : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        TryDestroyBySlash(collision.collider);
+        if (_isDestroyed || TryDestroyBySlash(collision.collider))
+        {
+            return;
+        }
+
+        Player player = collision.collider.GetComponent<Player>();
+        if (player != null)
+        {
+            if (IsPlayerLandingOnTop(collision))
+            {
+                // 위에서 밟은 경우에는 장애물을 발판처럼 유지한다.
+                return;
+            }
+
+            player.NotifyObstacleCollision();
+            _isDestroyed = true;
+            DestroyObstacle();
+        }
     }
 
-    private void TryDestroyBySlash(Collider2D hitbox)
+    private static bool IsPlayerLandingOnTop(Collision2D collision)
+    {
+        if (collision.otherCollider == null)
+        {
+            return false;
+        }
+
+        float obstacleTop = collision.otherCollider.bounds.max.y;
+        foreach (ContactPoint2D contact in collision.contacts)
+        {
+            bool isTopSurfaceContact = contact.point.y >= obstacleTop - LandingContactTolerance;
+            bool isVerticalContact = Mathf.Abs(contact.normal.y) > 0.7f;
+            if (isTopSurfaceContact && isVerticalContact)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryDestroyBySlash(Collider2D hitbox)
     {
         // 공격 판정이 여러 콜백으로 겹쳐도 히트스톱과 파괴 예약은 한 번만 실행한다.
         if (_isDestroyed)
         {
-            return;
+            return false;
         }
 
         Player player = hitbox.GetComponent<Player>();
 
         if (player == null || !player.IsSlashHitbox(hitbox))
         {
-            return;
+            return false;
         }
 
         _isDestroyed = true;
         player.NotifySlashHit();
+        DestroyObstacle();
+        return true;
+    }
 
-        // 파괴 지연 동안 날아가는 연출은 남기되, 플레이어와의 추가 충돌은 막는다.
+    private void DestroyObstacle()
+    {
         foreach (Collider2D obstacleCollider in _colliders)
         {
             obstacleCollider.enabled = false;
         }
 
-        if(type == Type.Still)
+        if (_rigidbody != null)
         {
-            if (_rigidbody != null)
+            if (type == Type.Still)
             {
-            _rigidbody.linearVelocity = slashKnockback;
-            }    
+                _rigidbody.linearVelocity = slashKnockback;
+            }
+            else if (type == Type.Hanging)
+            {
+                _rigidbody.constraints = RigidbodyConstraints2D.None;
+            }
         }
-        else if(type == Type.Hanging)
-        {
-            _rigidbody.mass = 1;
-        }
-        
+
         Destroy(gameObject, destroyDelay);
     }
 }
