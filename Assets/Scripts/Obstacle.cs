@@ -2,6 +2,13 @@ using UnityEngine;
 
 public class Obstacle : MonoBehaviour
 {
+    public enum Type
+    {
+        Hanging,
+        Still
+    }
+
+    [SerializeField] private Type type;
     [SerializeField] private Vector2 slashKnockback = new Vector2(12f, 6f);
     [SerializeField, Min(0f)] private float destroyDelay = 2f;
 
@@ -49,11 +56,18 @@ public class Obstacle : MonoBehaviour
             obstacleCollider.enabled = false;
         }
 
-        if (_rigidbody != null)
+        if(type == Type.Still)
         {
+            if (_rigidbody != null)
+            {
             _rigidbody.linearVelocity = slashKnockback;
+            }    
         }
-
+        else if(type == Type.Hanging)
+        {
+            _rigidbody.mass = 1;
+        }
+        
         Destroy(gameObject, destroyDelay);
     }
 }
