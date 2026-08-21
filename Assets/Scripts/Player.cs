@@ -34,6 +34,8 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject gameOverPanel;
     [Header("Attack")]
     [SerializeField] private GameObject slashObject;
+    [SerializeField] private GameObject slash1Object;
+    [SerializeField] private GameObject slash2Object;
     [SerializeField] private BoxCollider2D slashHitbox;
     [SerializeField, Min(0f)] private float attackDuration = 0.15f;
 
@@ -173,10 +175,8 @@ public class Player : MonoBehaviour
             slashHitbox.enabled = false;
         }
 
-        if (slashObject != null)
-        {
-            slashObject.SetActive(false);
-        }
+        FindSlashEffectObjects();
+        SetSlashEffectActive(null);
 
         if (gameOverPanel != null)
         {
@@ -344,10 +344,7 @@ public class Player : MonoBehaviour
             StopCoroutine(_attackCoroutine);
         }
 
-        if (slashObject != null)
-        {
-            slashObject.SetActive(true);
-        }
+        SetSlashEffectActive(attackType);
 
         if (slashHitbox != null)
         {
@@ -378,14 +375,63 @@ public class Player : MonoBehaviour
         
         yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackDuration - Time.fixedDeltaTime));
 
-        if (slashObject != null)
-        {
-            slashObject.SetActive(false);
-        }
+        SetSlashEffectActive(null);
 
         yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackCooldown - attackDuration));
         
         _attackCoroutine = null;
+    }
+
+    private void FindSlashEffectObjects()
+    {
+        // Inspector 연결을 우선하고, 아직 연결하지 않았다면 Player 자식의 이름으로 찾는다.
+        if (slash1Object == null)
+        {
+            Transform slash1 = transform.Find("Slash1");
+            if (slash1 != null)
+            {
+                slash1Object = slash1.gameObject;
+            }
+        }
+
+        if (slash2Object == null)
+        {
+            Transform slash2 = transform.Find("Slash2");
+            if (slash2 != null)
+            {
+                slash2Object = slash2.gameObject;
+            }
+        }
+    }
+
+    private void SetSlashEffectActive(AttackType? attackType)
+    {
+        bool hasSeparateEffects = slash1Object != null || slash2Object != null;
+        if (!hasSeparateEffects)
+        {
+            if (slashObject != null)
+            {
+                slashObject.SetActive(attackType.HasValue);
+            }
+
+            return;
+        }
+
+        if (slash1Object != null)
+        {
+            slash1Object.SetActive(attackType == AttackType.Attack1);
+        }
+
+        if (slash2Object != null)
+        {
+            slash2Object.SetActive(attackType == AttackType.Attack2);
+        }
+
+        // 기존 공용 이펙트가 별도 오브젝트가 아니라면 함께 보이지 않도록 숨긴다.
+        if (slashObject != null && slashObject != slash1Object && slashObject != slash2Object)
+        {
+            slashObject.SetActive(false);
+        }
     }
 
     private void UpdateMovementAnimationParameters()

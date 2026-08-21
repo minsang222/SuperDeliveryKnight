@@ -8,23 +8,16 @@ public class PlatformManager : MonoBehaviour
 
     [SerializeField, FormerlySerializedAs("_buildings")] private GameObject[] buildings;
     [SerializeField, FormerlySerializedAs("_obstacles")] private GameObject[] obstacles;
-    [SerializeField] private GameObject[] FBGbuildings;
-    [SerializeField] private GameObject[] hangingObstacles;
     [SerializeField, FormerlySerializedAs("_spawnOutsideDistance")] private float spawnOutsideDistance = 5f;
     [SerializeField] private Player player;
     [SerializeField, FormerlySerializedAs("_randomOffsetXRangeMax"), FormerlySerializedAs("ranOffsetXRangeMax")]
     private float randomOffsetXRangeMax = 5f;
     [SerializeField, FormerlySerializedAs("_randomOffsetXRangeMin"), FormerlySerializedAs("ranOffsetXRangeMin")]
     private float randomOffsetXRangeMin = 2f;
-    [Header("FBG Building Spawn")]
-    [SerializeField, Min(0f)] private float fbgSpawnIntervalMin = 1.5f;
-    [SerializeField, Min(0f)] private float fbgSpawnIntervalMax = 3.5f;
-    [SerializeField, Min(0f)] private float fbgHeightAboveEndPoint = 5f;
     
     private PlatBuilding _lastBuilding;
     private Camera _mainCamera;
     private System.Random _positionRandom;
-    private float _nextFbgSpawnTime;
 
     private void Awake()
     {
@@ -45,7 +38,6 @@ public class PlatformManager : MonoBehaviour
     private void Start()
     {
         SpawnPlatform(new Vector3(GetSpawnX(), 0f, 0f));
-        ScheduleNextFbgSpawn();
     }
 
     private void Update()
@@ -60,11 +52,6 @@ public class PlatformManager : MonoBehaviour
             SpawnPlatform(nextPosition);
         }
 
-        if (Time.time >= _nextFbgSpawnTime)
-        {
-            SpawnFbgBuilding();
-            ScheduleNextFbgSpawn();
-        }
     }
 
     public void SetPositionRandomSeed(int seed)
@@ -145,65 +132,6 @@ public class PlatformManager : MonoBehaviour
                 obstacles[obstacleIndex], obstaclePoint.position, obstaclePoint.rotation);
             obstacle.transform.SetParent(building.transform, true);
         }
-    }
-
-    private void SpawnFbgBuilding()
-    {
-        if (FBGbuildings == null || FBGbuildings.Length == 0 || _lastBuilding == null ||
-            _lastBuilding.EndPoint == null)
-        {
-            return;
-        }
-
-        GameObject prefab = FBGbuildings[Random.Range(0, FBGbuildings.Length)];
-        if (prefab == null)
-        {
-            return;
-        }
-
-        Vector3 position = new Vector3(
-            GetSpawnX(),
-            _lastBuilding.EndPoint.position.y + fbgHeightAboveEndPoint,
-            0f);
-        FBGBuilding building = Instantiate(prefab, position, Quaternion.identity, transform)
-            .GetComponent<FBGBuilding>();
-
-        if (building != null)
-        {
-            SpawnHangingObstacles(building);
-        }
-    }
-
-    private void SpawnHangingObstacles(FBGBuilding building)
-    {
-        if (hangingObstacles == null || hangingObstacles.Length == 0 || building.ObstaclePoints == null)
-        {
-            return;
-        }
-
-        foreach (Transform obstaclePoint in building.ObstaclePoints)
-        {
-            if (obstaclePoint == null)
-            {
-                continue;
-            }
-
-            GameObject prefab = hangingObstacles[Random.Range(0, hangingObstacles.Length)];
-            if (prefab == null)
-            {
-                continue;
-            }
-
-            GameObject obstacle = Instantiate(prefab, obstaclePoint.position, obstaclePoint.rotation);
-            obstacle.transform.SetParent(building.transform, true);
-        }
-    }
-
-    private void ScheduleNextFbgSpawn()
-    {
-        float min = Mathf.Min(fbgSpawnIntervalMin, fbgSpawnIntervalMax);
-        float max = Mathf.Max(fbgSpawnIntervalMin, fbgSpawnIntervalMax);
-        _nextFbgSpawnTime = Time.time + Random.Range(min, max);
     }
 
     public bool TryGetRespawnPoint(float playerX, float dropHeight, out Vector3 position)
