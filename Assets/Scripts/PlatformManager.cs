@@ -3,7 +3,8 @@ using UnityEngine.Serialization;
 
 public class PlatformManager : MonoBehaviour
 {
-    private const int DefaultPositionRandomSeed = 0;
+    public static PlatformManager Instance { get; private set; }
+    public int DefaultPositionRandomSeed { get; private set; }
 
     [SerializeField, FormerlySerializedAs("_buildings")] private GameObject[] buildings;
     [SerializeField, FormerlySerializedAs("_obstacles")] private GameObject[] obstacles;
@@ -23,6 +24,14 @@ public class PlatformManager : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogError("PlatformMananger 중복");
+            Destroy(gameObject);
+            return;
+        }
+
+        DefaultPositionRandomSeed = 0;
         _mainCamera = Camera.main;
         _positionRandom = new System.Random(DefaultPositionRandomSeed);
     }
@@ -142,6 +151,12 @@ public class PlatformManager : MonoBehaviour
     private float GetSpawnX()
     {
         return _mainCamera.ViewportToWorldPoint(new Vector3(1f, 0.5f, -_mainCamera.transform.position.z)).x + spawnOutsideDistance;
+    }
+    
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
 }

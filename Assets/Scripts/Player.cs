@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
+    public static Player Instance { get; private set; }
+    private event Action<bool> HasParried;
+    
     [SerializeField, Min(0f)] private float startSpeed = 10f;
     [SerializeField, Min(0f)] private float jumpForce = 20f;
     [SerializeField] private int comboCount;
@@ -15,6 +19,9 @@ public class Player : MonoBehaviour
     [Header("Game Over")]
     [SerializeField, Min(0f)] private float maxAirborneTime = 2.5f;
 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip parrySFX;
+    
     [SerializeField, Min(0f)]
     private float respawnTime = 2f;
     [SerializeField, Min(0f)] private float respawnDropHeight = 5f;
@@ -29,7 +36,7 @@ public class Player : MonoBehaviour
     private float attackCooldown = 0.4f;
     [Header("Ground Check")]
     [SerializeField] private float groundCheckDistance = 0.1f;
-    [SerializeField, Range(0f, 1f)] private float minimumGroundNormalY = 0.7f;
+    [SerializeField, UnityEngine.Range(0f, 1f)] private float minimumGroundNormalY = 0.7f;
     [SerializeField] private LayerMask groundLayer;
     private const float SafetyMargin = 5f;
     private Rigidbody2D _rigidbody;
@@ -39,6 +46,7 @@ public class Player : MonoBehaviour
     private float _respawnElapsed;
     private Coroutine _attackCoroutine;
     private Coroutine _hitStopCoroutine;
+    private bool _hasParried;
     private bool _isGameOver;
     private bool _isRespawning;
 
@@ -59,10 +67,17 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogError("PlatformMananger 중복");
+            Destroy(gameObject);
+            return;
+        }
         // 게임 오버나 히트스톱 중 재시작되어도 새 씬은 정상 시간으로 출발해야 한다.
         Time.timeScale = 1f;
         _rigidbody = GetComponent<Rigidbody2D>();
         _playerCollider = GetComponent<Collider2D>();
+        Sniper.Instance.HasAimed += ReadyParry;
 
         if (_rigidbody == null)
         {
@@ -189,26 +204,27 @@ public class Player : MonoBehaviour
             slashHitbox.enabled = true;
         }
 
+        HasParried?.Invoke(_hasParried);
         _attackCoroutine = StartCoroutine(DisableAttackAfterDelay());
     }
 
     private IEnumerator DisableAttackAfterDelay()
     {
-        yield return new WaitForSeconds(Time.fixedDeltaTime);
+        yield return new WaitForSecondsRealtime(Time.fixedDeltaTime);
         
         if (slashHitbox != null)
         {
             slashHitbox.enabled = false;
         }
         
-        yield return new WaitForSeconds(Mathf.Max(0f, attackDuration - Time.fixedDeltaTime));
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackDuration - Time.fixedDeltaTime));
 
         if (slashObject != null)
         {
             slashObject.SetActive(false);
         }
 
-        yield return new WaitForSeconds(Mathf.Max(0f, attackCooldown - attackDuration));
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackCooldown - attackDuration));
         
         _attackCoroutine = null;
         
@@ -280,6 +296,48 @@ public class Player : MonoBehaviour
         _airborneElapsed = 0f;
         _isRespawning = false;
     }
+
+    public void ReadyParry(float wait, float window)
+    {
+        StartCoroutine(ParryCoroutine(wait, window));
+    }
+
+    private IEnumerator ParryCoroutine(float wait, float window)
+    {
+        yield return new WaitForSecondsRealtime(wait - window / 2f);
+
+        StartCoroutine(CheckParry(window));
+        HasParried += ParrySucceed;
+    }
+
+    private IEnumerator CheckParry(float window)
+    {
+        yield return new WaitForSecondsRealtime(window);
+
+        if (!_hasParried)
+        {
+            ParryFailed();
+        }
+
+        HasParried -= ParrySucceed;
+        _hasParried = false;
+    }
+
+    private void ParrySucceed(bool noop)
+    {
+        _hasParried = true;
+        // 패링 애니메이션
+        // 패링 효과음
+        audioSource.PlayOneShot(parrySFX);
+        // 콤보 상승
+    }
+
+    private void ParryFailed()
+    {
+        // 피격 애니메이션
+        // 피격 효과음
+        // 피격 상태
+    }
     
     // (연구 필요) 0.5f * 9.8f 부분은 Rigidbody 중력 물리가 예측 가능하게 동작해야 올바른 식이 된다.
     // 호출자에게 얼마만큼의 너비와 높이 여유가 있는지 정보를 전달해야 하므로, bool이 아닌 float로 설계한다.
@@ -307,5 +365,11 @@ public class Player : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 }
