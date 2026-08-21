@@ -1,0 +1,533 @@
+fileFormatVersion: 2
+guid: d6770afdc99ec564cb7c506ea2e880aa
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2999786487126287670
+    second: neonSigns_0
+  - first:
+      213: -2947966363198002362
+    second: neonSigns_1
+  - first:
+      213: -6911513109712884498
+    second: neonSigns_2
+  - first:
+      213: 6925981611284719242
+    second: neonSigns_3
+  - first:
+      213: -48460650128371832
+    second: neonSigns_4
+  - first:
+      213: -5894855704379907792
+    second: neonSigns_5
+  - first:
+      213: -8984229479513387419
+    second: neonSigns_6
+  - first:
+      213: 60228886367894486
+    second: neonSigns_7
+  - first:
+      213: -4532445171297625927
+    second: neonSigns_8
+  - first:
+      213: 7829417227112941305
+    second: neonSigns_9
+  - first:
+      213: 8404440427206119310
+    second: neonSigns_10
+  - first:
+      213: 1710298823231553488
+    second: neonSigns_11
+  - first:
+      213: 4962465897940958772
+    second: neonSigns_12
+  - first:
+      213: 1052477861816324573
+    second: neonSigns_13
+  - first:
+      213: -357688528728143037
+    second: neonSigns_14
+  - first:
+      213: -2359319036480414770
+    second: neonSigns_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: neonSigns_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 187
+        width: 63
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 635ed2f9ae161a920800000000000000
+      internalID: 2999786487126287670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_1
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 190
+        width: 65
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64b68cf2638b617d0800000000000000
+      internalID: -2947966363198002362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_2
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 218
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eecab1b027f5510a0800000000000000
+      internalID: -6911513109712884498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_3
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 187
+        width: 67
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a86638d74970e1060800000000000000
+      internalID: 6925981611284719242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_4
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 164
+        width: 133
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88f8383ab45d35ff0800000000000000
+      internalID: -48460650128371832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_5
+      rect:
+        serializedVersion: 2
+        x: 425
+        y: 185
+        width: 75
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 031204a18f3413ea0800000000000000
+      internalID: -5894855704379907792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_6
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 143
+        width: 68
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56e030d83ea915380800000000000000
+      internalID: -8984229479513387419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_7
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 143
+        width: 68
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6dbfc216ad9f5d000800000000000000
+      internalID: 60228886367894486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_8
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 181
+        width: 65
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b8ded071258911c0800000000000000
+      internalID: -4532445171297625927
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_9
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 74
+        width: 69
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f6046c6c7da7ac60800000000000000
+      internalID: 7829417227112941305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_10
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 141
+        width: 62
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8f8d873a0292a470800000000000000
+      internalID: 8404440427206119310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_11
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 94
+        width: 126
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0df3c7ad7b33cb710800000000000000
+      internalID: 1710298823231553488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_12
+      rect:
+        serializedVersion: 2
+        x: 421
+        y: 108
+        width: 60
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43eb2c021783ed440800000000000000
+      internalID: 4962465897940958772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_13
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 84
+        width: 68
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd1568ff9072b9e00800000000000000
+      internalID: 1052477861816324573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_14
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 90
+        width: 106
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34b4de0ad2c390bf0800000000000000
+      internalID: -357688528728143037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: neonSigns_15
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 14
+        width: 75
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecb94c626d3024fd0800000000000000
+      internalID: -2359319036480414770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      neonSigns_0: 2999786487126287670
+      neonSigns_1: -2947966363198002362
+      neonSigns_10: 8404440427206119310
+      neonSigns_11: 1710298823231553488
+      neonSigns_12: 4962465897940958772
+      neonSigns_13: 1052477861816324573
+      neonSigns_14: -357688528728143037
+      neonSigns_15: -2359319036480414770
+      neonSigns_2: -6911513109712884498
+      neonSigns_3: 6925981611284719242
+      neonSigns_4: -48460650128371832
+      neonSigns_5: -5894855704379907792
+      neonSigns_6: -8984229479513387419
+      neonSigns_7: 60228886367894486
+      neonSigns_8: -4532445171297625927
+      neonSigns_9: 7829417227112941305
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

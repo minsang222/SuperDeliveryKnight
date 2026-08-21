@@ -11,8 +11,6 @@ public class Player : MonoBehaviour
     
     [SerializeField, Min(0f)] private float startSpeed = 10f;
     [SerializeField, Min(0f)] private float jumpForce = 20f;
-    [Header("Variable Jump")]
-    [SerializeField, Range(0f, 1f)] private float jumpReleaseVelocityMultiplier = 0.5f;
     [SerializeField] private int comboCount;
     [SerializeField] private float comboSpeedIncreaseRate = 0.01f;
     [Header("Hit Stop")]
@@ -225,12 +223,6 @@ public class Player : MonoBehaviour
         if (_isGrounded && Keyboard.current != null && Keyboard.current.zKey.wasPressedThisFrame)
         {
             Jump();
-        }
-
-        // 상승 중 Z 키를 놓으면 위쪽 속도를 줄여 짧은 점프가 된다.
-        if (Keyboard.current != null && Keyboard.current.zKey.wasReleasedThisFrame && _rigidbody.linearVelocityY > 0f)
-        {
-            _rigidbody.linearVelocityY *= jumpReleaseVelocityMultiplier;
         }
 
         if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
