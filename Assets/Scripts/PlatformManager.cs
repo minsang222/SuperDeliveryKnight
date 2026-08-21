@@ -115,7 +115,7 @@ public class PlatformManager : MonoBehaviour
                 continue;
             }
 
-            Instantiate(obstacles[obstacleIndex], obstaclePoint.position, obstaclePoint.rotation, building.transform);
+            Instantiate(obstacles[obstacleIndex], obstaclePoint.position, obstaclePoint.rotation);
         }
     }
 
