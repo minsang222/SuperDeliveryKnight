@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 public class Player : MonoBehaviour
 {
@@ -32,6 +31,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 0.1f;
     [SerializeField, Range(0f, 1f)] private float minimumGroundNormalY = 0.7f;
     [SerializeField] private LayerMask groundLayer;
+    private const float SafetyMargin = 5f;
     private Rigidbody2D _rigidbody;
     private Collider2D _playerCollider;
     private bool _isGrounded;
@@ -284,6 +284,22 @@ public class Player : MonoBehaviour
         {
             gameOverPanel.SetActive(true);
         }
+    }
+    
+    // (연구 필요) 0.5f * 9.8f 부분은 Rigidbody 중력 물리가 예측 가능하게 동작해야 올바른 식이 된다.
+    // 호출자에게 얼마만큼의 너비와 높이 여유가 있는지 정보를 전달해야 하므로, bool이 아닌 float로 설계한다.
+    public Vector2 CanReachChunk(Transform start, Transform end)
+    {
+        var (x1, y1) = (start.position.x, start.position.y);
+        var (x2, y2) = (end.position.x, end.position.y);
+
+        var timeLanding = (x2 - x1) / (startSpeed);
+        var heightLanding = y1 + (jumpForce * timeLanding - 0.5f * 9.8f * Mathf.Pow(timeLanding, 2));
+
+        var timePeak = (Mathf.Abs(_rigidbody.linearVelocityY)) / 9.8f;
+        var widthLanding = x1 + (startSpeed * 2f * timePeak);
+
+        return new Vector2(widthLanding - x2 - SafetyMargin, heightLanding - y2 - SafetyMargin);
     }
 
     private void RestartGame()
