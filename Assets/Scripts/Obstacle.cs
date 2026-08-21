@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Obstacle : MonoBehaviour
@@ -11,7 +12,7 @@ public class Obstacle : MonoBehaviour
     [SerializeField] private Type type;
     [SerializeField] private Vector2 slashKnockback = new Vector2(12f, 6f);
     [SerializeField, Min(0f)] private float destroyDelay = 2f;
-
+    
     private Collider2D[] _colliders;
     private Rigidbody2D _rigidbody;
     private bool _isDestroyed;
@@ -81,6 +82,7 @@ public class Obstacle : MonoBehaviour
 
     private bool TryDestroyBySlash(Collider2D hitbox)
     {
+        
         // 공격 판정이 여러 콜백으로 겹쳐도 히트스톱과 파괴 예약은 한 번만 실행한다.
         if (_isDestroyed)
         {

@@ -23,6 +23,9 @@ public class Player : MonoBehaviour
 
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip parrySFX;
+    [SerializeField] private AudioClip hitSFX1;
+    [SerializeField] private AudioClip hitSFX2;
+    [SerializeField] private AudioClip hitSFX3;
 
     [SerializeField, Min(0f)]
     private float respawnTime = 1f;
@@ -56,6 +59,7 @@ public class Player : MonoBehaviour
     private Collider2D _playerCollider;
     [SerializeField] private Animator anim;
     private bool _isGrounded;
+    private int _FXCount;
     private float _airborneElapsed;
     private float _respawnElapsed;
     private Coroutine _attackCoroutine;
@@ -84,6 +88,29 @@ public class Player : MonoBehaviour
 
     public void NotifySlashHit()
     {
+        comboCount++;
+        _FXCount++;
+        
+                if (_hitStopCoroutine != null)
+        {
+            StopCoroutine(_hitStopCoroutine);
+        }
+        
+        if (audioSource != null) {
+            if (_FXCount % 3 == 1 && hitSFX1 != null)
+            {
+                audioSource.PlayOneShot(hitSFX1);
+            }
+            if (_FXCount % 3 == 2 && hitSFX2 != null)
+            {
+                audioSource.PlayOneShot(hitSFX2);
+            }
+            if (_FXCount % 3 == 0 && hitSFX3 != null)
+            {
+                audioSource.PlayOneShot(hitSFX3);
+            }
+        }
+        
         if (_hitStopCoroutine != null)
         {
             StopCoroutine(_hitStopCoroutine);
@@ -95,6 +122,7 @@ public class Player : MonoBehaviour
     // 장애물 등에 부딪혔을 때 호출한다. Any State -> Stumble 전환을 사용한다.
     public void NotifyStumble()
     {
+        comboCount = 0;
         if (anim != null)
         {
             anim.SetTrigger(IsStumbleHash);
@@ -154,6 +182,8 @@ public class Player : MonoBehaviour
         {
             gameOverPanel.SetActive(false);
         }
+
+        _FXCount = 0;
     }
 
     private void Start()
