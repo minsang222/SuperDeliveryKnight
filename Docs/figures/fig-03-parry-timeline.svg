@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 280" width="680" height="280">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#2c2c2a;font-size:13px}
+.h{font-size:14px;font-weight:500}
+.m{fill:#5f5e5a;font-size:12px}
+.ax{stroke:#888780;stroke-width:1;fill:none}
+.tk{stroke:#888780;stroke-width:1}
+.warn{fill:#F5C4B3;stroke:#D85A30;stroke-width:1}
+.win{fill:#C0DD97;stroke:#639922;stroke-width:1}
+.dead{fill:none;stroke:#b4b2a9;stroke-width:1;stroke-dasharray:4 4}
+@media (prefers-color-scheme:dark){text{fill:#e8e6e0}.m{fill:#b4b2a9}.ax,.tk{stroke:#8a8880}.warn{fill:#712B13;stroke:#F0997B}.win{fill:#27500A;stroke:#97C459}.dead{stroke:#5f5e5a}}
+</style>
+
+<text class="h" x="20" y="26">스나이퍼 텔레그래프 → 패링 윈도우</text>
+
+<line class="ax" x1="40" y1="150" x2="650" y2="150"/>
+<line class="tk" x1="40" y1="144" x2="40" y2="156"/>
+<line class="tk" x1="230" y1="144" x2="230" y2="156"/>
+<line class="tk" x1="470" y1="144" x2="470" y2="156"/>
+
+<rect class="warn" x="40" y="112" width="190" height="30" rx="4"/>
+<text class="m" x="135" y="132" text-anchor="middle">예고 1.5초</text>
+
+<rect class="win" x="230" y="112" width="240" height="30" rx="4"/>
+<text class="m" x="350" y="132" text-anchor="middle">패링 가능 — 총알이 씬에 존재하는 동안 전부</text>
+
+<rect class="dead" x="470" y="112" width="180" height="30" rx="4"/>
+<text class="m" x="560" y="132" text-anchor="middle">피격 확정</text>
+
+<text class="m" x="40" y="176">t=0</text>
+<text class="m" x="230" y="176" text-anchor="middle">t=1.5s</text>
+<text class="m" x="470" y="176" text-anchor="middle">총알 도달</text>
+
+<text class="m" x="40" y="206">· 적 머리 위 「!」 표시</text>
+<text class="m" x="40" y="226">· 플레이어–스나이퍼를 잇는 붉은 선</text>
+<text class="m" x="40" y="246">· 경고음 없음 (이 버전 사운드 제외 — 시각 신호만으로 성립해야 함)</text>
+
+<text class="m" x="360" y="206">· 총알 스폰, 붉은 선을 따라 접근</text>
+<text class="m" x="360" y="226">· 공격 입력 시 패링 성립, 데미지 0</text>
+<text class="m" x="360" y="246">· 패링 성공은 콤보 +1 (부수기와 동일 취급)</text>
+</svg>

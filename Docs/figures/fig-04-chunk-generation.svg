@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 300" width="680" height="300">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#2c2c2a;font-size:13px}
+.h{font-size:14px;font-weight:500}
+.m{fill:#5f5e5a;font-size:12px}
+.bl{fill:#D3D1C7;stroke:#888780;stroke-width:1}
+.top{stroke:#D85A30;stroke-width:2;fill:none}
+.pt{fill:#D85A30}
+.gap{stroke:#888780;stroke-width:1;fill:none;stroke-dasharray:3 3}
+.ob{fill:#888780}
+@media (prefers-color-scheme:dark){text{fill:#e8e6e0}.m{fill:#b4b2a9}.bl{fill:#3a3a37;stroke:#8a8880}.top,.pt{stroke:#F0997B;fill:#F0997B}.gap{stroke:#8a8880}.ob{fill:#b4b2a9}}
+</style>
+
+<text class="h" x="20" y="26">건물 청크 무한 생성 — endPos 기준 체이닝</text>
+
+<rect class="bl" x="40" y="150" width="150" height="110"/>
+<line class="top" x1="40" y1="150" x2="190" y2="150"/>
+<circle class="pt" cx="40" cy="150" r="4"/><circle class="pt" cx="190" cy="150" r="4"/>
+<text class="m" x="40" y="140" text-anchor="middle">start</text>
+<text class="m" x="190" y="140" text-anchor="middle">end</text>
+<rect class="ob" x="80" y="134" width="16" height="16"/>
+<rect class="ob" x="140" y="134" width="16" height="16"/>
+<text class="m" x="115" y="190" text-anchor="middle">청크 A</text>
+<text class="m" x="115" y="210" text-anchor="middle">슬롯 type 1</text>
+
+<rect class="bl" x="250" y="115" width="130" height="145"/>
+<line class="top" x1="250" y1="115" x2="380" y2="115"/>
+<circle class="pt" cx="250" cy="115" r="4"/><circle class="pt" cx="380" cy="115" r="4"/>
+<rect class="ob" x="290" y="99" width="16" height="16"/>
+<text class="m" x="315" y="155" text-anchor="middle">청크 B</text>
+<text class="m" x="315" y="175" text-anchor="middle">슬롯 type 0</text>
+
+<rect class="bl" x="450" y="185" width="160" height="75"/>
+<line class="top" x1="450" y1="185" x2="610" y2="185"/>
+<circle class="pt" cx="450" cy="185" r="4"/><circle class="pt" cx="610" cy="185" r="4"/>
+<rect class="ob" x="500" y="169" width="16" height="16"/>
+<rect class="ob" x="556" y="169" width="16" height="16"/>
+<text class="m" x="530" y="225" text-anchor="middle">청크 C</text>
+<text class="m" x="530" y="245" text-anchor="middle">슬롯 type 2</text>
+
+<path class="gap" d="M190 150 L250 115"/>
+<path class="gap" d="M380 115 L450 185"/>
+<text class="m" x="220" y="105" text-anchor="middle">gapX 고정</text>
+<text class="m" x="415" y="90" text-anchor="middle">deltaY 랜덤</text>
+
+<text class="m" x="20" y="286">다음 청크 위치 = 직전 청크 endPos + (고정 gapX, 랜덤 deltaY). deltaY 범위는 §튜닝의 점프 도달 높이 상한에 종속된다 — 이 상한을 넘는 값이 뽑히면 즉시 진행 불가 상태가 되므로 클램프가 필수다.</text>
+</svg>

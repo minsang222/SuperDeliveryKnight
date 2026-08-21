@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 320" width="680" height="320">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#2c2c2a;font-size:13px}
+.h{font-size:14px;font-weight:500}
+.m{fill:#5f5e5a;font-size:12px}
+.ax{stroke:#888780;stroke-width:1;fill:none}
+.gd{stroke:#b4b2a9;stroke-width:0.8;fill:none;stroke-dasharray:3 4}
+.cv{stroke:#D85A30;stroke-width:2;fill:none}
+@media (prefers-color-scheme:dark){text{fill:#e8e6e0}.m{fill:#b4b2a9}.ax{stroke:#8a8880}.gd{stroke:#5f5e5a}.cv{stroke:#F0997B}}
+</style>
+
+<text class="h" x="20" y="26">점프 낙하 모델 — 중력 가속도를 T1~T2 구간에서 0까지 감쇠</text>
+
+<text class="m" x="30" y="60">낙하 가속도 g(t)</text>
+<line class="ax" x1="60" y1="230" x2="310" y2="230"/>
+<line class="ax" x1="60" y1="80" x2="60" y2="230"/>
+<line class="gd" x1="130" y1="80" x2="130" y2="230"/>
+<line class="gd" x1="215" y1="80" x2="215" y2="230"/>
+<path class="cv" d="M60 96 L130 96 L215 230 L310 230"/>
+<text class="m" x="130" y="248" text-anchor="middle">T1</text>
+<text class="m" x="215" y="248" text-anchor="middle">T2</text>
+<text class="m" x="52" y="100" text-anchor="end">G</text>
+<text class="m" x="52" y="234" text-anchor="end">0</text>
+<text class="m" x="95" y="272" text-anchor="middle">일정</text>
+<text class="m" x="172" y="272" text-anchor="middle">선형 감쇠</text>
+<text class="m" x="262" y="272" text-anchor="middle">가속 없음</text>
+
+<text class="m" x="380" y="60">하강 속도 v(t)</text>
+<line class="ax" x1="410" y1="230" x2="660" y2="230"/>
+<line class="ax" x1="410" y1="80" x2="410" y2="230"/>
+<line class="gd" x1="480" y1="80" x2="480" y2="230"/>
+<line class="gd" x1="565" y1="80" x2="565" y2="230"/>
+<line class="gd" x1="410" y1="112" x2="660" y2="112"/>
+<path class="cv" d="M410 230 L480 190 Q530 145 565 112 L660 112"/>
+<text class="m" x="480" y="248" text-anchor="middle">T1</text>
+<text class="m" x="565" y="248" text-anchor="middle">T2</text>
+<text class="m" x="402" y="108" text-anchor="end">Vmax</text>
+<text class="m" x="612" y="272" text-anchor="middle">등속 낙하</text>
+
+<text class="m" x="20" y="302">설계 결과: T2 이후 낙하 속도가 상한에 고정되므로 낙하 시간이 낙하 높이에 선형 비례한다. 건물 간 높이차 설계는 이 선형성 위에서 정한다.</text>
+</svg>

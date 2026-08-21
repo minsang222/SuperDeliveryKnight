@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 250" width="680" height="250">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#2c2c2a;font-size:13px}
+.h{font-size:14px;font-weight:500}
+.m{fill:#5f5e5a;font-size:12px}
+.bx{fill:none;stroke:#888780;stroke-width:1}
+.ar{stroke:#888780;stroke-width:1.2;fill:none}
+.rt{stroke:#888780;stroke-width:1;fill:none;stroke-dasharray:4 4}
+@media (prefers-color-scheme:dark){text{fill:#e8e6e0}.m{fill:#b4b2a9}.bx,.ar,.rt{stroke:#8a8880}}
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+
+<text class="h" x="20" y="28">코어 루프 — 1사이클 약 2~4초</text>
+
+<rect class="bx" x="20" y="52" width="140" height="62" rx="6"/>
+<text class="h" x="90" y="78" text-anchor="middle">위협 인지</text>
+<text class="m" x="90" y="97" text-anchor="middle">화면 우측 진입</text>
+
+<rect class="bx" x="192" y="52" width="140" height="62" rx="6"/>
+<text class="h" x="262" y="78" text-anchor="middle">판단</text>
+<text class="m" x="262" y="97" text-anchor="middle">넘을까 / 부술까</text>
+
+<rect class="bx" x="364" y="52" width="140" height="62" rx="6"/>
+<text class="h" x="434" y="78" text-anchor="middle">입력</text>
+<text class="m" x="434" y="97" text-anchor="middle">점프 또는 공격</text>
+
+<rect class="bx" x="536" y="52" width="124" height="62" rx="6"/>
+<text class="h" x="598" y="78" text-anchor="middle">결과 확인</text>
+<text class="m" x="598" y="97" text-anchor="middle">콤보 ±</text>
+
+<line class="ar" x1="164" y1="83" x2="186" y2="83" marker-end="url(#a)"/>
+<line class="ar" x1="336" y1="83" x2="358" y2="83" marker-end="url(#a)"/>
+<line class="ar" x1="508" y1="83" x2="530" y2="83" marker-end="url(#a)"/>
+
+<path class="rt" d="M598 118 L598 152 L90 152 L90 120" marker-end="url(#a)"/>
+<text class="m" x="344" y="146" text-anchor="middle">콤보가 오르면 이동 속도 상승 → 다음 사이클의 판단 시간이 짧아진다</text>
+
+<text class="h" x="20" y="196">실패 시</text>
+<text class="m" x="20" y="218">피격 → 콤보 0으로 초기화 → 속도 하락 → 판단 시간이 다시 길어짐 (자기 보정 난이도)</text>
+<text class="m" x="20" y="238">체력 5 소진 시에만 런 종료. 즉사 없음 — 40시간 잼에서 리트라이 마찰을 최소화하기 위한 결정.</text>
+</svg>

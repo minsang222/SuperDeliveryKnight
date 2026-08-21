@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 300" width="680" height="300">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#2c2c2a;font-size:13px}
+.h{font-size:14px;font-weight:500}
+.m{fill:#5f5e5a;font-size:11px}
+@media (prefers-color-scheme:dark){text{fill:#e8e6e0}.m{fill:#b4b2a9}}
+</style>
+
+<text class="h" x="20" y="26">Set A 팔레트 17색 + 밸류 계층</text>
+
+<text class="m" x="20" y="56">주인공 램프 (금)</text>
+<rect x="150" y="42" width="88" height="22" fill="#3E2148"/><rect x="242" y="42" width="88" height="22" fill="#7A3B4E"/><rect x="334" y="42" width="88" height="22" fill="#C4703C"/><rect x="426" y="42" width="88" height="22" fill="#F0A93E"/><rect x="518" y="42" width="88" height="22" fill="#FFE9A3"/>
+<text class="m" x="614" y="58">V42→233</text>
+
+<text class="m" x="20" y="92">환경 램프 (청록)</text>
+<rect x="150" y="78" width="88" height="22" fill="#14283F"/><rect x="242" y="78" width="88" height="22" fill="#1D5163"/><rect x="334" y="78" width="88" height="22" fill="#2E8C82"/><rect x="426" y="78" width="88" height="22" fill="#57C29B"/><rect x="518" y="78" width="88" height="22" fill="#A6EFC4"/>
+<text class="m" x="614" y="94">V37→220</text>
+
+<text class="m" x="20" y="128">위험 램프 (마젠타)</text>
+<rect x="150" y="114" width="88" height="22" fill="#2B1140"/><rect x="242" y="114" width="88" height="22" fill="#5E1D6E"/><rect x="334" y="114" width="88" height="22" fill="#9B2FA0"/><rect x="426" y="114" width="88" height="22" fill="#D95BC0"/><rect x="518" y="114" width="88" height="22" fill="#FF9BE0"/>
+<text class="m" x="614" y="130">V26→181</text>
+
+<text class="m" x="20" y="164">무채색</text>
+<rect x="150" y="150" width="180" height="22" fill="#12101A"/><rect x="334" y="150" width="180" height="22" fill="#F4F1E8"/>
+<text class="m" x="150" y="188">#12101A</text><text class="m" x="334" y="188">#F4F1E8</text>
+
+<text class="h" x="20" y="222">밸류 계층 (실루엣 테스트 합격 기준)</text>
+<rect x="20" y="234" width="120" height="26" fill="#14283F"/><text class="m" x="80" y="276" text-anchor="middle">원경 V20–35</text>
+<rect x="148" y="234" width="120" height="26" fill="#1D5163"/><text class="m" x="208" y="276" text-anchor="middle">근경 V35–55</text>
+<rect x="276" y="234" width="120" height="26" fill="#2E8C82"/><text class="m" x="336" y="276" text-anchor="middle">플랫폼 V55–70</text>
+<rect x="404" y="234" width="120" height="26" fill="#FFE9A3"/><text class="m" x="464" y="276" text-anchor="middle">주인공 V70–95</text>
+<rect x="532" y="234" width="120" height="26" fill="#D95BC0"/><text class="m" x="592" y="276" text-anchor="middle">위험 V25–45</text>
+</svg>
