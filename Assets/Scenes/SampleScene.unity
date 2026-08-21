@@ -903,7 +903,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8ff8f8ba702c46539aa1b41356c9517, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sniper
-  parryableWindow: 0.1
+  parryableWindow: 0.2
   thresholdChance: 0.6000000238418579
   thresholdChanceOfDouble: 0.1599999964237213
   audioSource: {fileID: 1976525104}

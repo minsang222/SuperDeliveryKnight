@@ -117,7 +117,12 @@ public class PlatformManager : MonoBehaviour
                 continue;
             }
 
-            Instantiate(obstacles[obstacleIndex], obstaclePoint.position, obstaclePoint.rotation, building.transform);
+            // 건물 프리팹 자체가 확대되어 있어 부모를 지정한 채 생성하면 장애물도
+            // 건물의 스케일을 상속받는다. 먼저 월드 좌표/스케일로 생성한 뒤 부모를
+            // 연결해 장애물 프리팹의 의도된 크기를 유지한다.
+            GameObject obstacle = Instantiate(
+                obstacles[obstacleIndex], obstaclePoint.position, obstaclePoint.rotation);
+            obstacle.transform.SetParent(building.transform, true);
         }
     }
 
