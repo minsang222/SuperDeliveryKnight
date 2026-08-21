@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,38 +7,46 @@ using UnityEngine.Serialization;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField, FormerlySerializedAs("startSpeed")] private float _startSpeed;
-    [SerializeField, FormerlySerializedAs("jumpForce")] private float _jumpForce = 10f;
-    [SerializeField, FormerlySerializedAs("jumpHoldForce")] private float _jumpHoldForce = 15f;
-    [SerializeField, FormerlySerializedAs("maxJumpHoldTime"), Min(0f)] private float _maxJumpHoldTime = 0.5f;
-    [SerializeField, FormerlySerializedAs("comboCount")] private int _comboCount;
-    [SerializeField] private float _comboSpeedIncreaseRate = 0.01f;
+    [SerializeField, Min(0f)] private float startSpeed = 10f;
+    [SerializeField, Min(0f)] private float jumpForce = 20f;
+    [SerializeField, Min(0f)] private float jumpHoldForce = 20f;
+    [SerializeField, Min(0f)] private float maxJumpHoldTime = 0.5f;
+    [SerializeField] private int comboCount;
+    [SerializeField] private float comboSpeedIncreaseRate = 0.01f;
     [Header("Hit Stop")]
-    [SerializeField, FormerlySerializedAs("hitStopDuration"), Min(0f)] private float _hitStopDuration = 0.05f;
+    [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
     [Header("Game Over")]
-    [SerializeField, FormerlySerializedAs("maxAirborneTime"), Min(0f)] private float _maxAirborneTime = 5f;
-    [SerializeField, FormerlySerializedAs("gameOverPanel")] private GameObject _gameOverPanel;
+    [SerializeField, Min(0f)] private float maxAirborneTime = 2.5f;
+
+    [SerializeField, Min(0f)]
+    private float respawnTime = 2f;
+    [SerializeField] private GameObject gameOverPanel;
     [Header("Attack")]
-    [SerializeField, FormerlySerializedAs("slashObject")] private GameObject _slashObject;
-    [SerializeField, FormerlySerializedAs("slashHitbox")] private BoxCollider2D _slashHitbox;
-    [SerializeField, FormerlySerializedAs("attackDuration"), Min(0f)] private float _attackDuration = 0.15f;
+    [SerializeField] private GameObject slashObject;
+    [SerializeField] private BoxCollider2D slashHitbox;
+    [SerializeField, Min(0f)] private float attackDuration = 0.15f;
+
+    [SerializeField, Min(0f)]
+    private float attackCooldown = 0.25f;
     [Header("Ground Check")]
-    [SerializeField, FormerlySerializedAs("groundCheckDistance")] private float _groundCheckDistance = 0.1f;
-    [SerializeField, FormerlySerializedAs("minimumGroundNormalY"), Range(0f, 1f)] private float _minimumGroundNormalY = 0.7f;
-    [SerializeField, FormerlySerializedAs("groundLayer")] private LayerMask _groundLayer;
+    [SerializeField] private float groundCheckDistance = 0.1f;
+    [SerializeField, Range(0f, 1f)] private float minimumGroundNormalY = 0.7f;
+    [SerializeField] private LayerMask groundLayer;
     private Rigidbody2D _rigidbody;
     private Collider2D _playerCollider;
     private bool _isGrounded;
     private bool _isHoldingJump;
     private float _jumpHoldElapsed;
     private float _airborneElapsed;
+    private float _respawnElapsed;
     private Coroutine _attackCoroutine;
     private Coroutine _hitStopCoroutine;
     private bool _isGameOver;
+    private bool _isRespawning;
 
     public bool IsSlashHitbox(Collider2D hitbox)
     {
-        return hitbox == _slashHitbox;
+        return hitbox == slashHitbox;
     }
 
     public void NotifySlashHit()
@@ -57,19 +66,24 @@ public class Player : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
         _playerCollider = GetComponent<Collider2D>();
 
-        if (_slashHitbox != null)
+        if (_rigidbody == null)
         {
-            _slashHitbox.enabled = false;
+            Console.Write("critical error");
         }
 
-        if (_slashObject != null)
+        if (slashHitbox != null)
         {
-            _slashObject.SetActive(false);
+            slashHitbox.enabled = false;
         }
 
-        if (_gameOverPanel != null)
+        if (slashObject != null)
         {
-            _gameOverPanel.SetActive(false);
+            slashObject.SetActive(false);
+        }
+
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
         }
     }
     void Update()
@@ -84,27 +98,33 @@ public class Player : MonoBehaviour
             return;
         }
 
+        if (_isRespawning)
+        {
+            // 리스폰 중에는 조작 불가능한 상태에 놓인다.
+            return;
+        }
+
         Move();
 
-        if (_isGrounded && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (_isGrounded && Keyboard.current != null && Keyboard.current.zKey.wasPressedThisFrame)
         {
             Jump();
         }
 
-        if (Keyboard.current == null || !Keyboard.current.spaceKey.isPressed)
+        if (Keyboard.current == null || !Keyboard.current.zKey.isPressed)
         {
             _isHoldingJump = false;
         }
 
-        if (Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
         {
             Attack();
         }
     }
-
+    
     private void Move()
     {
-        _rigidbody.linearVelocityX = _startSpeed * (1 + _comboSpeedIncreaseRate * _comboCount);
+        _rigidbody.linearVelocityX = startSpeed * (1 + comboSpeedIncreaseRate * comboCount);
     }
 
     private void FixedUpdate()
@@ -114,7 +134,17 @@ public class Player : MonoBehaviour
             return;
         }
 
-        ApplyJumpHoldForce();
+        if (_isRespawning)
+        {
+            _respawnElapsed += Time.fixedDeltaTime;
+            if (_respawnElapsed >= respawnTime)
+            {
+                _isRespawning = false;
+                // respawn coroutine 종료
+            }
+        }
+
+        // ApplyJumpHoldForce();
         _isGrounded = IsGrounded();
 
         if (_isGrounded)
@@ -125,9 +155,9 @@ public class Player : MonoBehaviour
 
         _airborneElapsed += Time.fixedDeltaTime;
 
-        if (_airborneElapsed >= _maxAirborneTime)
+        if (_airborneElapsed >= maxAirborneTime)
         {
-            GameOver();
+            Respawn();
         }
     }
 
@@ -142,29 +172,31 @@ public class Player : MonoBehaviour
         RaycastHit2D groundHit = Physics2D.Raycast(
             _playerCollider.bounds.center,
             Vector2.down,
-            _playerCollider.bounds.extents.y + _groundCheckDistance,
-            _groundLayer);
+            _playerCollider.bounds.extents.y + groundCheckDistance,
+            groundLayer);
 
-        return groundHit.collider != null && groundHit.normal.y >= _minimumGroundNormalY;
+        return groundHit.collider != null && groundHit.normal.y >= minimumGroundNormalY;
     }
 
     private void Jump()
     {
-        _rigidbody.linearVelocityY = _jumpForce;
+        _rigidbody.linearVelocityY = jumpForce;
+        _rigidbody.AddForce(Vector2.up * jumpHoldForce, ForceMode2D.Force);
         _isGrounded = false;
         _isHoldingJump = true;
         _jumpHoldElapsed = 0f;
     }
 
+    [Obsolete("점프 출력 고정",  true)]
     private void ApplyJumpHoldForce()
     {
-        if (!_isHoldingJump || _jumpHoldElapsed >= _maxJumpHoldTime || _rigidbody.linearVelocityY <= 0f)
+        if (!_isHoldingJump || _jumpHoldElapsed >= maxJumpHoldTime || _rigidbody.linearVelocityY <= 0f)
         {
             _isHoldingJump = false;
             return;
         }
 
-        _rigidbody.AddForce(Vector2.up * _jumpHoldForce, ForceMode2D.Force);
+        _rigidbody.AddForce(Vector2.up * jumpHoldForce, ForceMode2D.Force);
         _jumpHoldElapsed += Time.fixedDeltaTime;
     }
 
@@ -172,17 +204,18 @@ public class Player : MonoBehaviour
     {
         if (_attackCoroutine != null)
         {
-            StopCoroutine(_attackCoroutine);
+            // attackCooldown에 걸린 상태
+            return;
         }
 
-        if (_slashObject != null)
+        if (slashObject != null)
         {
-            _slashObject.SetActive(true);
+            slashObject.SetActive(true);
         }
 
-        if (_slashHitbox != null)
+        if (slashHitbox != null)
         {
-            _slashHitbox.enabled = true;
+            slashHitbox.enabled = true;
         }
 
         _attackCoroutine = StartCoroutine(DisableAttackAfterDelay());
@@ -190,26 +223,31 @@ public class Player : MonoBehaviour
 
     private IEnumerator DisableAttackAfterDelay()
     {
-        yield return new WaitForSeconds(_attackDuration);
-
-        if (_slashHitbox != null)
+        yield return new WaitForSeconds(Time.fixedDeltaTime);
+        
+        if (slashHitbox != null)
         {
-            _slashHitbox.enabled = false;
+            slashHitbox.enabled = false;
+        }
+        
+        yield return new WaitForSeconds(attackDuration);
+
+        if (slashObject != null)
+        {
+            slashObject.SetActive(false);
         }
 
-        if (_slashObject != null)
-        {
-            _slashObject.SetActive(false);
-        }
-
+        yield return new WaitForSeconds(attackCooldown);
+        
         _attackCoroutine = null;
+        
     }
 
     private IEnumerator ApplyHitStop()
     {
         Time.timeScale = 0f;
         // 일반 대기는 timeScale 0에서 끝나지 않으므로 실제 시간 기준으로 히트스톱을 해제한다.
-        yield return new WaitForSecondsRealtime(_hitStopDuration);
+        yield return new WaitForSecondsRealtime(hitStopDuration);
 
         if (!_isGameOver)
         {
@@ -225,13 +263,26 @@ public class Player : MonoBehaviour
         // 이동·물리·공격 연출을 함께 멈추는 게임잼용 단일 일시정지 지점이다.
         Time.timeScale = 0f;
 
-        if (_gameOverPanel != null)
+        if (gameOverPanel != null)
         {
-            _gameOverPanel.SetActive(true);
+            gameOverPanel.SetActive(true);
         }
         else
         {
             Debug.Log("Game Over - Press R to restart.");
+        }
+    }
+
+    private void Respawn()
+    {
+        // TEMP, TODO: 다음 청크 계산해서 위에 소환
+        _isGameOver = true;
+        // 이동·물리·공격 연출을 함께 멈추는 게임잼용 단일 일시정지 지점이다.
+        Time.timeScale = 0f;
+
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
         }
     }
 
