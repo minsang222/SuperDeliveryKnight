@@ -34,6 +34,7 @@ public class Player : MonoBehaviour
     private const float SafetyMargin = 5f;
     private Rigidbody2D _rigidbody;
     private Collider2D _playerCollider;
+    [SerializeField] private Animator anim;
     private bool _isGrounded;
     private float _airborneElapsed;
     private float _respawnElapsed;
