@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -8,7 +8,6 @@ using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
     public static Player Instance { get; private set; }
-    private event Action<bool> HasParried;
     
     [SerializeField, Min(0f)] private float startSpeed = 10f;
     [SerializeField, Min(0f)] private float jumpForce = 20f;
@@ -56,7 +55,9 @@ public class Player : MonoBehaviour
     private float _respawnElapsed;
     private Coroutine _attackCoroutine;
     private Coroutine _hitStopCoroutine;
-    private bool _hasParried;
+    private Sniper _sniper;
+    private readonly HashSet<int> _activeParryWindows = new HashSet<int>();
+    private int _nextParryWindowId;
     private bool _isGameOver;
     private bool _isRespawning;
     private AttackType _lastAttackType;
@@ -136,7 +137,11 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        Sniper.Instance.HasAimed += ReadyParry;
+        _sniper = Sniper.Instance;
+        if (_sniper != null)
+        {
+            _sniper.HasAimed += ReadyParry;
+        }
     }
 
     void Update()
@@ -289,7 +294,16 @@ public class Player : MonoBehaviour
             slashHitbox.enabled = true;
         }
 
-        HasParried?.Invoke(_hasParried);
+        if (_activeParryWindows.Count > 0)
+        {
+            _activeParryWindows.Clear();
+
+            if (audioSource != null && parrySFX != null)
+            {
+                audioSource.PlayOneShot(parrySFX);
+            }
+        }
+
         _attackCoroutine = StartCoroutine(DisableAttackAfterDelay());
     }
 
@@ -395,37 +409,29 @@ public class Player : MonoBehaviour
 
     public void ReadyParry(float wait, float window)
     {
-        StartCoroutine(ParryCoroutine(wait, window));
+        StartCoroutine(ParryCoroutine(
+            ++_nextParryWindowId,
+            Mathf.Max(0f, wait - window / 2f),
+            Mathf.Max(0f, window)));
     }
 
-    private IEnumerator ParryCoroutine(float wait, float window)
+    private IEnumerator ParryCoroutine(int windowId, float delay, float window)
     {
-        yield return new WaitForSecondsRealtime(wait - window / 2f);
+        yield return new WaitForSecondsRealtime(delay);
 
-        StartCoroutine(CheckParry(window));
-        HasParried += ParrySucceed;
-    }
+        if (window <= 0f)
+        {
+            ParryFailed();
+            yield break;
+        }
 
-    private IEnumerator CheckParry(float window)
-    {
+        _activeParryWindows.Add(windowId);
         yield return new WaitForSecondsRealtime(window);
 
-        if (!_hasParried)
+        if (_activeParryWindows.Remove(windowId))
         {
             ParryFailed();
         }
-
-        HasParried -= ParrySucceed;
-        _hasParried = false;
-    }
-
-    private void ParrySucceed(bool noop)
-    {
-        _hasParried = true;
-        // 패링 애니메이션
-        // 패링 효과음
-        audioSource.PlayOneShot(parrySFX);
-        // 콤보 상승
     }
 
     private void ParryFailed()
@@ -465,6 +471,11 @@ public class Player : MonoBehaviour
     
     private void OnDestroy()
     {
+        if (_sniper != null)
+        {
+            _sniper.HasAimed -= ReadyParry;
+        }
+
         if (Instance == this)
             Instance = null;
     }

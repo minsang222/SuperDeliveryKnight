@@ -16,27 +16,7 @@ public class SceneContractTests
 
         try
         {
-            GameObject[] roots = EditorSceneManager.OpenScene(ScenePath).GetRootGameObjects();
-            MonoBehaviour player = FindBehaviour(roots, "Player");
-            MonoBehaviour platformManager = FindBehaviour(roots, "PlatformManager");
-            MonoBehaviour followCamera = FindBehaviour(roots, "CinemachineCamera");
-
-            Assert.That(player, Is.Not.Null, "SampleScene에 Player가 필요합니다.");
-            Assert.That(platformManager, Is.Not.Null, "SampleScene에 PlatformManager가 필요합니다.");
-            Assert.That(Camera.main, Is.Not.Null, "SampleScene에 MainCamera 태그 카메라가 필요합니다.");
-            Assert.That(Camera.main.GetComponents<MonoBehaviour>().Any(IsType("CinemachineBrain")), Is.True);
-            Assert.That(Camera.main.transform.parent, Is.Null, "Main Camera는 Player 이동을 중복 상속하면 안 됩니다.");
-            Assert.That(followCamera, Is.Not.Null, "씬에 Player Follow Camera가 필요합니다.");
-            Assert.That(GetProperty<Transform>(followCamera, "Follow"), Is.SameAs(player.transform));
-            Assert.That(player.GetComponent<Rigidbody2D>(), Is.Not.Null);
-            Assert.That(GetReference(player, "slashObject"), Is.Not.Null);
-            Assert.That(GetReference(player, "slashHitbox"), Is.TypeOf<BoxCollider2D>());
-            Assert.That(((Collider2D)GetReference(player, "slashHitbox")).isTrigger, Is.True);
-            Assert.That(GetArray(platformManager, "buildings"), Is.Not.Empty.And.All.Not.Null);
-            Assert.That(GetArray(platformManager, "obstacles"), Is.Not.Empty.And.All.Not.Null);
-            Assert.That(GetReference(platformManager, "player"), Is.SameAs(player));
-            Assert.That(GetReference(player, "platformManager"), Is.SameAs(platformManager));
-            Assert.That(GetFloat(player, "respawnDropHeight"), Is.EqualTo(5f));
+            AssertRunnerSceneContract(ScenePath);
         }
         finally
         {
@@ -75,12 +55,51 @@ public class SceneContractTests
         Assert.That(prefab.GetComponent<Rigidbody2D>(), Is.Not.Null);
     }
 
+    private static void AssertRunnerSceneContract(string scenePath)
+    {
+        GameObject[] roots = EditorSceneManager.OpenScene(scenePath).GetRootGameObjects();
+        MonoBehaviour player = FindBehaviour(roots, "Player");
+        MonoBehaviour platformManager = FindBehaviour(roots, "PlatformManager");
+        MonoBehaviour followCamera = FindBehaviour(roots, "CinemachineCamera");
+        MonoBehaviour[] clocks = FindBehaviours(roots, "Clock");
+        MonoBehaviour[] snipers = FindBehaviours(roots, "Sniper");
+
+        Assert.That(player, Is.Not.Null, "SampleScene에 Player가 필요합니다.");
+        Assert.That(platformManager, Is.Not.Null, "SampleScene에 PlatformManager가 필요합니다.");
+        Assert.That(clocks, Has.Length.EqualTo(1), "SampleScene에는 Clock이 정확히 하나 필요합니다.");
+        Assert.That(snipers, Has.Length.EqualTo(1), "SampleScene에는 Sniper가 정확히 하나 필요합니다.");
+        Assert.That(Camera.main, Is.Not.Null, "SampleScene에 MainCamera 태그 카메라가 필요합니다.");
+        Assert.That(Camera.main.GetComponents<MonoBehaviour>().Any(IsType("CinemachineBrain")), Is.True);
+        Assert.That(Camera.main.transform.parent, Is.Null, "Main Camera는 Player 이동을 중복 상속하면 안 됩니다.");
+        Assert.That(followCamera, Is.Not.Null, "씬에 Player Follow Camera가 필요합니다.");
+        Assert.That(GetProperty<Transform>(followCamera, "Follow"), Is.SameAs(player.transform));
+        Assert.That(player.GetComponent<Rigidbody2D>(), Is.Not.Null);
+        Assert.That(GetReference(player, "audioSource"), Is.TypeOf<AudioSource>());
+        Assert.That(GetReference(player, "parrySFX"), Is.TypeOf<AudioClip>());
+        Assert.That(GetReference(snipers[0], "audioSource"), Is.TypeOf<AudioSource>());
+        Assert.That(GetReference(snipers[0], "warningSFX"), Is.TypeOf<AudioClip>());
+        Assert.That(GetReference(player, "slashObject"), Is.Not.Null);
+        Assert.That(GetReference(player, "slashHitbox"), Is.TypeOf<BoxCollider2D>());
+        Assert.That(((Collider2D)GetReference(player, "slashHitbox")).isTrigger, Is.True);
+        Assert.That(GetArray(platformManager, "buildings"), Is.Not.Empty.And.All.Not.Null);
+        Assert.That(GetArray(platformManager, "obstacles"), Is.Not.Empty.And.All.Not.Null);
+        Assert.That(GetReference(platformManager, "player"), Is.SameAs(player));
+        Assert.That(GetReference(player, "platformManager"), Is.SameAs(platformManager));
+        Assert.That(GetFloat(player, "respawnDropHeight"), Is.EqualTo(5f));
+    }
+
     private static MonoBehaviour FindBehaviour(GameObject[] roots, string typeName)
+    {
+        return FindBehaviours(roots, typeName).FirstOrDefault();
+    }
+
+    private static MonoBehaviour[] FindBehaviours(GameObject[] roots, string typeName)
     {
         return roots
             .Where(root => root != null)
             .SelectMany(root => root.GetComponentsInChildren<MonoBehaviour>(true))
-            .FirstOrDefault(component => component != null && component.GetType().Name == typeName);
+            .Where(component => component != null && component.GetType().Name == typeName)
+            .ToArray();
     }
 
     private static Func<MonoBehaviour, bool> IsType(string typeName)

@@ -16,6 +16,7 @@ public class Sniper : MonoBehaviour
     private const float AimToShot = 0.8333f;
     private bool _isDouble;
     private int _nextShot;
+    private Clock _clock;
     private System.Random _myDefaultPositionRandomSeed;
 
     void Awake()
@@ -29,49 +30,63 @@ public class Sniper : MonoBehaviour
 
         Instance = this;
         
-        _nextShot = 9999;
+        _nextShot = 0;
     }
 
     private void Start()
     {
-        Clock.Instance.Heartbeat += OnHeartbeat;
-        _myDefaultPositionRandomSeed = new System.Random(PlatformManager.Instance.DefaultPositionRandomSeed);
+        _clock = Clock.Instance;
+        if (_clock != null)
+        {
+            _clock.Heartbeat += OnHeartbeat;
+        }
+
+        _myDefaultPositionRandomSeed = new System.Random(
+            PlatformManager.Instance != null ? PlatformManager.Instance.DefaultPositionRandomSeed : 0);
+    }
+
+    private void OnDestroy()
+    {
+        if (_clock != null)
+        {
+            _clock.Heartbeat -= OnHeartbeat;
+        }
+
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     private void OnHeartbeat(int elapsedTime)
     {
-        _nextShot--;
-        if (_nextShot < 2)
+        if (_nextShot > 0)
         {
-            if (_nextShot == 0)
+            _nextShot--;
+            if (_nextShot != 2)
             {
-                _nextShot = 9999;
+                return;
             }
 
-            return;
-        }
-        if (_nextShot == 2)
-        {
-            Console.Write("Warning");
             // 패리 코루틴 플레이어에서 실행
             HasAimed?.Invoke(AimToShot, parryableWindow);
             if (_isDouble)
             {
                 _isDouble = false;
-                _nextShot += 1;
-                HasAimed?.Invoke(AimToShot, parryableWindow);
+                _nextShot = 3;
                 return;
             }
             // 애니메이션 재생
             // 효과음 재생
-            Debug.Log($"{audioSource.enabled}, {audioSource.gameObject.activeInHierarchy}");
-            audioSource.PlayOneShot(warningSFX);
+            if (audioSource != null && warningSFX != null)
+            {
+                audioSource.PlayOneShot(warningSFX);
+            }
             return;
         }
         
         // TODO: (정식 버전에서는 오브젝트 스트림을 중앙에서 발행. 게임잼에서는 배제)
         var res = _myDefaultPositionRandomSeed.NextDouble();
-        Debug.Log(res);
         if (res < thresholdChanceOfDouble)
         {
             _nextShot = 4;

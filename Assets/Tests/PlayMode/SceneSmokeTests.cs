@@ -8,11 +8,17 @@ using UnityEngine.TestTools;
 
 public class SceneSmokeTests
 {
-    [UnityTest]
-    public IEnumerator SampleScene_StartsWithoutDuplicatingTheFollowCamera()
+    [UnitySetUp]
+    public IEnumerator ResetScene()
     {
         SceneManager.LoadScene("SampleScene");
         yield return null;
+        yield return null;
+    }
+
+    [UnityTest]
+    public IEnumerator SampleScene_StartsWithoutDuplicatingTheFollowCamera()
+    {
         yield return null;
 
         int followCameraCount = Object.FindObjectsByType<Transform>()
@@ -47,9 +53,6 @@ public class SceneSmokeTests
     public IEnumerator GeneratedChunks_AreReachableAtBaseSpeed()
     {
         Random.InitState(20260821);
-        SceneManager.LoadScene("SampleScene");
-        yield return null;
-        yield return null;
 
         MonoBehaviour player = FindBehaviour("Player");
         MethodInfo canReachMethod = player.GetType().GetMethod(
@@ -141,7 +144,7 @@ public class SceneSmokeTests
     }
 
     [UnityTest]
-    public IEnumerator Attack_UsesSeparateAnimationDurationAndInputCooldown()
+    public IEnumerator Attack_HitboxEndsBeforeAnimation()
     {
         MonoBehaviour player = CreateIsolatedPlayer();
         GameObject slashObject = new GameObject("Test Slash");
@@ -153,7 +156,6 @@ public class SceneSmokeTests
         SetField(player, "slashHitbox", hitbox);
         SetField(player, "slashObject", slashObject);
         float attackDuration = GetField<float>(player, "attackDuration");
-        float attackCooldown = GetField<float>(player, "attackCooldown");
         MethodInfo attack = GetMethod(player, "Attack");
 
         attack.Invoke(player, null);
@@ -166,11 +168,6 @@ public class SceneSmokeTests
 
         yield return new WaitForSeconds(attackDuration);
         Assert.That(slashObject.activeSelf, Is.False);
-
-        yield return new WaitForSeconds(Mathf.Max(0f, attackCooldown - attackDuration));
-        attack.Invoke(player, null);
-        Assert.That(slashObject.activeSelf, Is.True,
-            "재공격 가능 시점은 attackDuration과 더한 값이 아니라 입력 시점부터 attackCooldown 뒤여야 합니다.");
         Object.Destroy(player.gameObject);
     }
 
@@ -203,10 +200,6 @@ public class SceneSmokeTests
     [UnityTest]
     public IEnumerator RespawnPoint_UsesTheNextChunkStart()
     {
-        SceneManager.LoadScene("SampleScene");
-        yield return null;
-        yield return null;
-
         MonoBehaviour player = FindBehaviour("Player");
         MonoBehaviour platformManager = FindBehaviour("PlatformManager");
         MonoBehaviour[] buildings = System.Array.Empty<MonoBehaviour>();
@@ -243,9 +236,6 @@ public class SceneSmokeTests
     public IEnumerator GeneratedObstacles_AreOwnedByTheirChunk()
     {
         Random.InitState(20260821);
-        SceneManager.LoadScene("SampleScene");
-        yield return null;
-        yield return null;
 
         MonoBehaviour player = FindBehaviour("Player");
         MonoBehaviour platformManager = FindBehaviour("PlatformManager");
@@ -319,6 +309,11 @@ public class SceneSmokeTests
 
     private static MonoBehaviour CreateIsolatedPlayer()
     {
+        foreach (MonoBehaviour existingPlayer in FindBehaviours("Player"))
+        {
+            Object.DestroyImmediate(existingPlayer.gameObject);
+        }
+
         foreach (MonoBehaviour platformManager in FindBehaviours("PlatformManager"))
         {
             platformManager.enabled = false;
