@@ -12,6 +12,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float comboSpeedIncreaseRate = 0.01f;
     [Header("Hit Stop")]
     [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
+    [Header("Attack Timing")]
+    [SerializeField, Min(0f)] private float attack12Interval = 0.2f;
+    [SerializeField, Min(0f)] private float afterAttackInterval = 1f;
     [Header("Game Over")]
     [SerializeField, Min(0f)] private float maxAirborneTime = 2.5f;
 
@@ -25,13 +28,17 @@ public class Player : MonoBehaviour
     [SerializeField] private BoxCollider2D slashHitbox;
     [SerializeField, Min(0f)] private float attackDuration = 0.15f;
 
-    [SerializeField, Min(0f)]
-    private float attackCooldown = 0.4f;
     [Header("Ground Check")]
     [SerializeField] private float groundCheckDistance = 0.1f;
     [SerializeField, Range(0f, 1f)] private float minimumGroundNormalY = 0.7f;
     [SerializeField] private LayerMask groundLayer;
     private const float SafetyMargin = 5f;
+    private static readonly int DoAttackHash = Animator.StringToHash("doAttack");
+    private static readonly int IsAttack2Hash = Animator.StringToHash("isAttack2");
+    private static readonly int IsFallingHash = Animator.StringToHash("isFalling");
+    private static readonly int IsJumpingHash = Animator.StringToHash("isJumping");
+    private static readonly int IsStumbleHash = Animator.StringToHash("isStumble");
+
     private Rigidbody2D _rigidbody;
     private Collider2D _playerCollider;
     [SerializeField] private Animator anim;
@@ -42,6 +49,15 @@ public class Player : MonoBehaviour
     private Coroutine _hitStopCoroutine;
     private bool _isGameOver;
     private bool _isRespawning;
+    private AttackType _lastAttackType;
+    private float _lastAttackTime = float.NegativeInfinity;
+
+    private enum AttackType
+    {
+        None,
+        Attack1,
+        Attack2
+    }
 
     public bool IsSlashHitbox(Collider2D hitbox)
     {
@@ -58,12 +74,26 @@ public class Player : MonoBehaviour
         _hitStopCoroutine = StartCoroutine(ApplyHitStop());
     }
 
+    // 장애물 등에 부딪혔을 때 호출한다. Any State -> Stumble 전환을 사용한다.
+    public void NotifyStumble()
+    {
+        if (anim != null)
+        {
+            anim.SetTrigger(IsStumbleHash);
+        }
+    }
+
     private void Awake()
     {
         // 게임 오버나 히트스톱 중 재시작되어도 새 씬은 정상 시간으로 출발해야 한다.
         Time.timeScale = 1f;
         _rigidbody = GetComponent<Rigidbody2D>();
         _playerCollider = GetComponent<Collider2D>();
+
+        if (anim == null)
+        {
+            anim = GetComponentInChildren<Animator>();
+        }
 
         if (_rigidbody == null)
         {
@@ -134,6 +164,7 @@ public class Player : MonoBehaviour
         }
 
         _isGrounded = IsGrounded();
+        UpdateMovementAnimationParameters();
 
         if (_isGrounded)
         {
@@ -170,14 +201,58 @@ public class Player : MonoBehaviour
     {
         _rigidbody.linearVelocityY = jumpForce;
         _isGrounded = false;
+
+        if (anim != null)
+        {
+            anim.SetBool(IsJumpingHash, true);
+            anim.SetBool(IsFallingHash, false);
+        }
     }
 
     private void Attack()
     {
+        float elapsedSinceLastAttack = Time.time - _lastAttackTime;
+
+        // Attack1 직후의 입력만 Attack2로 잇는다. 콤보 창이 끝난 뒤에는
+        // 마지막 공격으로부터 afterAttackInterval이 지난 후에만 Attack1을 다시 허용한다.
+        if (_lastAttackType == AttackType.Attack1 && elapsedSinceLastAttack < attack12Interval)
+        {
+            StartAttack(AttackType.Attack2);
+            return;
+        }
+
+        if (elapsedSinceLastAttack < afterAttackInterval)
+        {
+            return;
+        }
+
+        StartAttack(AttackType.Attack1);
+    }
+
+    private void StartAttack(AttackType attackType)
+    {
+        _lastAttackType = attackType;
+        _lastAttackTime = Time.time;
+
+        if (anim != null)
+        {
+            if (attackType == AttackType.Attack1)
+            {
+                // Attack1의 분기 조건을 다음 콤보 입력 전까지 false로 유지한다.
+                anim.SetBool(IsAttack2Hash, false);
+                anim.SetTrigger(DoAttackHash);
+            }
+            else
+            {
+                anim.SetBool(IsAttack2Hash, true);
+            }
+        }
+
+        // Attack2가 콤보 창 안에 들어오면 첫 공격의 연출 종료 코루틴을
+        // 새 공격 기준으로 다시 시작한다.
         if (_attackCoroutine != null)
         {
-            // attackCooldown에 걸린 상태
-            return;
+            StopCoroutine(_attackCoroutine);
         }
 
         if (slashObject != null)
@@ -209,10 +284,19 @@ public class Player : MonoBehaviour
             slashObject.SetActive(false);
         }
 
-        yield return new WaitForSeconds(Mathf.Max(0f, attackCooldown - attackDuration));
-        
         _attackCoroutine = null;
-        
+    }
+
+    private void UpdateMovementAnimationParameters()
+    {
+        if (anim == null || _rigidbody == null)
+        {
+            return;
+        }
+
+        float verticalVelocity = _rigidbody.linearVelocityY;
+        anim.SetBool(IsJumpingHash, !_isGrounded && verticalVelocity > 0f);
+        anim.SetBool(IsFallingHash, !_isGrounded && verticalVelocity < 0f);
     }
 
     private IEnumerator ApplyHitStop()
