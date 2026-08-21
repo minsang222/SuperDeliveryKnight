@@ -39,6 +39,7 @@ public class ScrollingBGs : MonoBehaviour
     private static void ScrollLayer(GameObject[] sprites, float moveSpeed, float verticalMovement,
         float offset, float playerX)
     {
+        return;
         if (sprites == null || sprites.Length == 0)
         {
             return;
@@ -51,9 +52,11 @@ public class ScrollingBGs : MonoBehaviour
                 continue;
             }
 
+           // if (Player.Instance.IsRespawning || Player.Instance.IsRecoveringFromStumble) moveSpeed = 0f;
+
             Transform spriteTransform = sprite.transform;
             Vector3 position = spriteTransform.position;
-            position.x -= moveSpeed * Time.deltaTime;
+            position.x += moveSpeed * Time.deltaTime;
             position.y += verticalMovement;
             spriteTransform.position = position;
         }

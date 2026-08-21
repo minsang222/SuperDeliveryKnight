@@ -64,8 +64,8 @@ public class Player : MonoBehaviour
     private readonly HashSet<int> _activeParryWindows = new HashSet<int>();
     private int _nextParryWindowId;
     private bool _isGameOver;
-    private bool _isRespawning;
-    private bool _isRecoveringFromStumble;
+    public bool IsRespawning { get; private set; }
+    public bool IsRecoveringFromStumble { get; private set; }
     private float _stumbleElapsed;
     private AttackType _lastAttackType;
     private float _lastAttackTime = float.NegativeInfinity;
@@ -104,12 +104,12 @@ public class Player : MonoBehaviour
     // Obstacle의 일반 물리 충돌에서만 호출된다. 검 판정은 Trigger이므로 이 경로를 타지 않는다.
     public void NotifyObstacleCollision()
     {
-        if (_isGameOver || _isRespawning || _rigidbody == null)
+        if (_isGameOver || IsRespawning || _rigidbody == null)
         {
             return;
         }
 
-        _isRecoveringFromStumble = true;
+        IsRecoveringFromStumble = true;
         _stumbleElapsed = 0f;
         _rigidbody.linearVelocityX = -stumbleKnockbackSpeed;
         NotifyStumble();
@@ -177,7 +177,7 @@ public class Player : MonoBehaviour
             return;
         }
 
-        if (_isRespawning)
+        if (IsRespawning)
         {
             // 리스폰 중에는 조작 불가능한 상태에 놓인다.
             return;
@@ -198,7 +198,7 @@ public class Player : MonoBehaviour
     
     private void Move()
     {
-        if (_isRecoveringFromStumble && _stumbleElapsed < stumbleKnockbackDuration)
+        if (IsRecoveringFromStumble && _stumbleElapsed < stumbleKnockbackDuration)
         {
             // 넉백 중에는 이동 속도로 덮어쓰지 않아 실제로 뒤로 밀려난다.
             return;
@@ -215,7 +215,7 @@ public class Player : MonoBehaviour
             return;
         }
 
-        if (_isRespawning)
+        if (IsRespawning)
         {
             return;
         }
@@ -372,7 +372,7 @@ public class Player : MonoBehaviour
 
     private void UpdateStumbleRecovery()
     {
-        if (!_isRecoveringFromStumble)
+        if (!IsRecoveringFromStumble)
         {
             return;
         }
@@ -380,13 +380,13 @@ public class Player : MonoBehaviour
         _stumbleElapsed += Time.fixedDeltaTime;
         if (_stumbleElapsed >= stumbleKnockbackDuration + stumbleRecoveryDuration)
         {
-            _isRecoveringFromStumble = false;
+            IsRecoveringFromStumble = false;
         }
     }
 
     private float GetStumbleRecoveryMultiplier()
     {
-        if (!_isRecoveringFromStumble)
+        if (!IsRecoveringFromStumble)
         {
             return 1f;
         }
@@ -431,12 +431,12 @@ public class Player : MonoBehaviour
 
     private void Respawn()
     {
-        if (_isRespawning)
+        if (IsRespawning)
         {
             return;
         }
 
-        _isRespawning = true;
+        IsRespawning = true;
         _respawnElapsed = 0f;
         StartCoroutine(RespawnRoutine());
     }
@@ -463,7 +463,7 @@ public class Player : MonoBehaviour
         }
 
         _airborneElapsed = 0f;
-        _isRespawning = false;
+        IsRespawning = false;
     }
 
     public void ReadyParry(float wait, float window)
