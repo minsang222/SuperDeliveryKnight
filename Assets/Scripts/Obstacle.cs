@@ -27,6 +27,7 @@ public class Obstacle : MonoBehaviour
 
     private void TryDestroyBySlash(Collider2D hitbox)
     {
+        // 공격 판정이 여러 콜백으로 겹쳐도 히트스톱과 파괴 예약은 한 번만 실행한다.
         if (_isDestroyed)
         {
             return;
@@ -42,6 +43,7 @@ public class Obstacle : MonoBehaviour
         _isDestroyed = true;
         player.NotifySlashHit();
 
+        // 파괴 지연 동안 날아가는 연출은 남기되, 플레이어와의 추가 충돌은 막는다.
         foreach (Collider2D obstacleCollider in _colliders)
         {
             obstacleCollider.enabled = false;

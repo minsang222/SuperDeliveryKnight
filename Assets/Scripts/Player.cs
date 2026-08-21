@@ -2,43 +2,42 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using Unity.Cinemachine;
+using UnityEngine.Serialization;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float startSpeed;
-    [SerializeField] private float jumpForce = 10f;
-    [SerializeField] private float jumpHoldForce = 15f;
-    [SerializeField, Min(0f)] private float maxJumpHoldTime = 0.5f;
-    [SerializeField] private int comboCount;
-    [Header("Camera")]
-    [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
-    [SerializeField] private Vector3 cameraFollowOffset = new Vector3(2f, 0f, -10f);
+    [SerializeField, FormerlySerializedAs("startSpeed")] private float _startSpeed;
+    [SerializeField, FormerlySerializedAs("jumpForce")] private float _jumpForce = 10f;
+    [SerializeField, FormerlySerializedAs("jumpHoldForce")] private float _jumpHoldForce = 15f;
+    [SerializeField, FormerlySerializedAs("maxJumpHoldTime"), Min(0f)] private float _maxJumpHoldTime = 0.5f;
+    [SerializeField, FormerlySerializedAs("comboCount")] private int _comboCount;
+    [SerializeField] private float _comboSpeedIncreaseRate = 0.01f;
+    [Header("Hit Stop")]
+    [SerializeField, FormerlySerializedAs("hitStopDuration"), Min(0f)] private float _hitStopDuration = 0.05f;
     [Header("Game Over")]
-    [SerializeField, Min(0f)] private float maxAirborneTime = 5f;
-    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField, FormerlySerializedAs("maxAirborneTime"), Min(0f)] private float _maxAirborneTime = 5f;
+    [SerializeField, FormerlySerializedAs("gameOverPanel")] private GameObject _gameOverPanel;
     [Header("Attack")]
-    [SerializeField] private GameObject slashObject;
-    [SerializeField] private BoxCollider2D slashHitbox;
-    [SerializeField, Min(0f)] private float attackDuration = 0.15f;
+    [SerializeField, FormerlySerializedAs("slashObject")] private GameObject _slashObject;
+    [SerializeField, FormerlySerializedAs("slashHitbox")] private BoxCollider2D _slashHitbox;
+    [SerializeField, FormerlySerializedAs("attackDuration"), Min(0f)] private float _attackDuration = 0.15f;
     [Header("Ground Check")]
-    [SerializeField] private float groundCheckDistance = 0.1f;
-    [SerializeField, Range(0f, 1f)] private float minimumGroundNormalY = 0.7f;
-    [SerializeField] private LayerMask groundLayer;
-    private Rigidbody2D rigid;
-    private Collider2D playerCollider;
-    private bool isGrounded;
-    private bool isHoldingJump;
-    private float jumpHoldElapsed;
-    private float airborneElapsed;
+    [SerializeField, FormerlySerializedAs("groundCheckDistance")] private float _groundCheckDistance = 0.1f;
+    [SerializeField, FormerlySerializedAs("minimumGroundNormalY"), Range(0f, 1f)] private float _minimumGroundNormalY = 0.7f;
+    [SerializeField, FormerlySerializedAs("groundLayer")] private LayerMask _groundLayer;
+    private Rigidbody2D _rigidbody;
+    private Collider2D _playerCollider;
+    private bool _isGrounded;
+    private bool _isHoldingJump;
+    private float _jumpHoldElapsed;
+    private float _airborneElapsed;
     private Coroutine _attackCoroutine;
     private Coroutine _hitStopCoroutine;
-    private CinemachineCamera _playerFollowCamera;
     private bool _isGameOver;
 
     public bool IsSlashHitbox(Collider2D hitbox)
     {
-        return hitbox == slashHitbox;
+        return hitbox == _slashHitbox;
     }
 
     public void NotifySlashHit()
@@ -53,33 +52,24 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        // 게임 오버나 히트스톱 중 재시작되어도 새 씬은 정상 시간으로 출발해야 한다.
         Time.timeScale = 1f;
-        rigid = GetComponent<Rigidbody2D>();
-        playerCollider = GetComponent<Collider2D>();
-        SetupCinemachineCamera();
+        _rigidbody = GetComponent<Rigidbody2D>();
+        _playerCollider = GetComponent<Collider2D>();
 
-        if (slashHitbox == null)
+        if (_slashHitbox != null)
         {
-            BoxCollider2D[] boxColliders = GetComponents<BoxCollider2D>();
-            if (boxColliders.Length > 1)
-            {
-                slashHitbox = boxColliders[1];
-            }
+            _slashHitbox.enabled = false;
         }
 
-        if (slashHitbox != null)
+        if (_slashObject != null)
         {
-            slashHitbox.enabled = false;
+            _slashObject.SetActive(false);
         }
 
-        if (slashObject != null)
+        if (_gameOverPanel != null)
         {
-            slashObject.SetActive(false);
-        }
-
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
+            _gameOverPanel.SetActive(false);
         }
     }
     void Update()
@@ -96,14 +86,14 @@ public class Player : MonoBehaviour
 
         Move();
 
-        if (isGrounded && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (_isGrounded && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             Jump();
         }
 
         if (Keyboard.current == null || !Keyboard.current.spaceKey.isPressed)
         {
-            isHoldingJump = false;
+            _isHoldingJump = false;
         }
 
         if (Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame)
@@ -114,7 +104,7 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
-        rigid.linearVelocityX = startSpeed * (1 + 0.01f * comboCount);
+        _rigidbody.linearVelocityX = _startSpeed * (1 + _comboSpeedIncreaseRate * _comboCount);
     }
 
     private void FixedUpdate()
@@ -125,17 +115,17 @@ public class Player : MonoBehaviour
         }
 
         ApplyJumpHoldForce();
-        isGrounded = IsGrounded();
+        _isGrounded = IsGrounded();
 
-        if (isGrounded)
+        if (_isGrounded)
         {
-            airborneElapsed = 0f;
+            _airborneElapsed = 0f;
             return;
         }
 
-        airborneElapsed += Time.fixedDeltaTime;
+        _airborneElapsed += Time.fixedDeltaTime;
 
-        if (airborneElapsed >= maxAirborneTime)
+        if (_airborneElapsed >= _maxAirborneTime)
         {
             GameOver();
         }
@@ -143,38 +133,39 @@ public class Player : MonoBehaviour
 
     private bool IsGrounded()
     {
-        if (rigid.linearVelocityY > 0f || playerCollider == null)
+        // 점프 직후 발밑 레이가 여전히 바닥을 잡아 공중 점프를 허용하지 않도록 상승 중에는 검사하지 않는다.
+        if (_rigidbody.linearVelocityY > 0f || _playerCollider == null)
         {
             return false;
         }
 
         RaycastHit2D groundHit = Physics2D.Raycast(
-            playerCollider.bounds.center,
+            _playerCollider.bounds.center,
             Vector2.down,
-            playerCollider.bounds.extents.y + groundCheckDistance,
-            groundLayer);
+            _playerCollider.bounds.extents.y + _groundCheckDistance,
+            _groundLayer);
 
-        return groundHit.collider != null && groundHit.normal.y >= minimumGroundNormalY;
+        return groundHit.collider != null && groundHit.normal.y >= _minimumGroundNormalY;
     }
 
     private void Jump()
     {
-        rigid.linearVelocityY = jumpForce;
-        isGrounded = false;
-        isHoldingJump = true;
-        jumpHoldElapsed = 0f;
+        _rigidbody.linearVelocityY = _jumpForce;
+        _isGrounded = false;
+        _isHoldingJump = true;
+        _jumpHoldElapsed = 0f;
     }
 
     private void ApplyJumpHoldForce()
     {
-        if (!isHoldingJump || jumpHoldElapsed >= maxJumpHoldTime || rigid.linearVelocityY <= 0f)
+        if (!_isHoldingJump || _jumpHoldElapsed >= _maxJumpHoldTime || _rigidbody.linearVelocityY <= 0f)
         {
-            isHoldingJump = false;
+            _isHoldingJump = false;
             return;
         }
 
-        rigid.AddForce(Vector2.up * jumpHoldForce, ForceMode2D.Force);
-        jumpHoldElapsed += Time.fixedDeltaTime;
+        _rigidbody.AddForce(Vector2.up * _jumpHoldForce, ForceMode2D.Force);
+        _jumpHoldElapsed += Time.fixedDeltaTime;
     }
 
     private void Attack()
@@ -184,14 +175,14 @@ public class Player : MonoBehaviour
             StopCoroutine(_attackCoroutine);
         }
 
-        if (slashObject != null)
+        if (_slashObject != null)
         {
-            slashObject.SetActive(true);
+            _slashObject.SetActive(true);
         }
 
-        if (slashHitbox != null)
+        if (_slashHitbox != null)
         {
-            slashHitbox.enabled = true;
+            _slashHitbox.enabled = true;
         }
 
         _attackCoroutine = StartCoroutine(DisableAttackAfterDelay());
@@ -199,60 +190,26 @@ public class Player : MonoBehaviour
 
     private IEnumerator DisableAttackAfterDelay()
     {
-        yield return new WaitForSeconds(attackDuration);
+        yield return new WaitForSeconds(_attackDuration);
 
-        if (slashHitbox != null)
+        if (_slashHitbox != null)
         {
-            slashHitbox.enabled = false;
+            _slashHitbox.enabled = false;
         }
 
-        if (slashObject != null)
+        if (_slashObject != null)
         {
-            slashObject.SetActive(false);
+            _slashObject.SetActive(false);
         }
 
         _attackCoroutine = null;
     }
 
-    private void SetupCinemachineCamera()
-    {
-        Camera mainCamera = Camera.main;
-
-        if (mainCamera == null)
-        {
-            return;
-        }
-
-        if (mainCamera.GetComponent<CinemachineBrain>() == null)
-        {
-            mainCamera.gameObject.AddComponent<CinemachineBrain>();
-        }
-
-        CreatePlayerFollowCamera(mainCamera);
-    }
-
-    private void CreatePlayerFollowCamera(Camera mainCamera)
-    {
-        if (_playerFollowCamera != null)
-        {
-            return;
-        }
-
-        GameObject followCameraObject = new GameObject("Player Follow Camera");
-        _playerFollowCamera = followCameraObject.AddComponent<CinemachineCamera>();
-        _playerFollowCamera.Lens = LensSettings.FromCamera(mainCamera);
-        _playerFollowCamera.Follow = transform;
-
-        CinemachineFollow follow = followCameraObject.AddComponent<CinemachineFollow>();
-        follow.FollowOffset = cameraFollowOffset;
-
-        _playerFollowCamera.ForceCameraPosition(mainCamera.transform.position, mainCamera.transform.rotation);
-    }
-
     private IEnumerator ApplyHitStop()
     {
         Time.timeScale = 0f;
-        yield return new WaitForSecondsRealtime(hitStopDuration);
+        // 일반 대기는 timeScale 0에서 끝나지 않으므로 실제 시간 기준으로 히트스톱을 해제한다.
+        yield return new WaitForSecondsRealtime(_hitStopDuration);
 
         if (!_isGameOver)
         {
@@ -265,11 +222,12 @@ public class Player : MonoBehaviour
     private void GameOver()
     {
         _isGameOver = true;
+        // 이동·물리·공격 연출을 함께 멈추는 게임잼용 단일 일시정지 지점이다.
         Time.timeScale = 0f;
 
-        if (gameOverPanel != null)
+        if (_gameOverPanel != null)
         {
-            gameOverPanel.SetActive(true);
+            _gameOverPanel.SetActive(true);
         }
         else
         {

@@ -1,0 +1,7 @@
+{
+    "name": "SuperDeliveryKnight.PlayModeTests",
+    "references": [],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

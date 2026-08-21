@@ -1,0 +1,10 @@
+{
+    "name": "SuperDeliveryKnight.EditModeTests",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}
