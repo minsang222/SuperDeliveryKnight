@@ -182,7 +182,7 @@ BoxCollider2D:
   m_UsedByEffector: 1
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.14}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -192,7 +192,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2.47, y: 0.42}
+  m_Size: {x: 2.47, y: 0.1}
   m_EdgeRadius: 0
 --- !u!114 &6969886087013048221
 MonoBehaviour:
@@ -211,6 +211,7 @@ MonoBehaviour:
   ObstaclePoints:
   - {fileID: 5741537994790846992}
   - {fileID: 3825635840575337689}
+  destroyOutsideDistance: 5
 --- !u!1 &5751880877418210051
 GameObject:
   m_ObjectHideFlags: 0

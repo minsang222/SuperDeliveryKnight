@@ -40,6 +40,7 @@ public class Obstacle : MonoBehaviour
         }
 
         _isDestroyed = true;
+        player.NotifySlashHit();
 
         foreach (Collider2D obstacleCollider in _colliders)
         {

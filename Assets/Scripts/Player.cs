@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Unity.Cinemachine;
 
 public class Player : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpHoldForce = 15f;
     [SerializeField, Min(0f)] private float maxJumpHoldTime = 0.5f;
     [SerializeField] private int comboCount;
+    [Header("Camera")]
+    [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
+    [SerializeField] private Vector3 cameraFollowOffset = new Vector3(2f, 0f, -10f);
     [Header("Game Over")]
     [SerializeField, Min(0f)] private float maxAirborneTime = 5f;
     [SerializeField] private GameObject gameOverPanel;
@@ -28,6 +32,8 @@ public class Player : MonoBehaviour
     private float jumpHoldElapsed;
     private float airborneElapsed;
     private Coroutine _attackCoroutine;
+    private Coroutine _hitStopCoroutine;
+    private CinemachineCamera _playerFollowCamera;
     private bool _isGameOver;
 
     public bool IsSlashHitbox(Collider2D hitbox)
@@ -35,11 +41,22 @@ public class Player : MonoBehaviour
         return hitbox == slashHitbox;
     }
 
+    public void NotifySlashHit()
+    {
+        if (_hitStopCoroutine != null)
+        {
+            StopCoroutine(_hitStopCoroutine);
+        }
+
+        _hitStopCoroutine = StartCoroutine(ApplyHitStop());
+    }
+
     private void Awake()
     {
         Time.timeScale = 1f;
         rigid = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<Collider2D>();
+        SetupCinemachineCamera();
 
         if (slashHitbox == null)
         {
@@ -195,6 +212,54 @@ public class Player : MonoBehaviour
         }
 
         _attackCoroutine = null;
+    }
+
+    private void SetupCinemachineCamera()
+    {
+        Camera mainCamera = Camera.main;
+
+        if (mainCamera == null)
+        {
+            return;
+        }
+
+        if (mainCamera.GetComponent<CinemachineBrain>() == null)
+        {
+            mainCamera.gameObject.AddComponent<CinemachineBrain>();
+        }
+
+        CreatePlayerFollowCamera(mainCamera);
+    }
+
+    private void CreatePlayerFollowCamera(Camera mainCamera)
+    {
+        if (_playerFollowCamera != null)
+        {
+            return;
+        }
+
+        GameObject followCameraObject = new GameObject("Player Follow Camera");
+        _playerFollowCamera = followCameraObject.AddComponent<CinemachineCamera>();
+        _playerFollowCamera.Lens = LensSettings.FromCamera(mainCamera);
+        _playerFollowCamera.Follow = transform;
+
+        CinemachineFollow follow = followCameraObject.AddComponent<CinemachineFollow>();
+        follow.FollowOffset = cameraFollowOffset;
+
+        _playerFollowCamera.ForceCameraPosition(mainCamera.transform.position, mainCamera.transform.rotation);
+    }
+
+    private IEnumerator ApplyHitStop()
+    {
+        Time.timeScale = 0f;
+        yield return new WaitForSecondsRealtime(hitStopDuration);
+
+        if (!_isGameOver)
+        {
+            Time.timeScale = 1f;
+        }
+
+        _hitStopCoroutine = null;
     }
 
     private void GameOver()
