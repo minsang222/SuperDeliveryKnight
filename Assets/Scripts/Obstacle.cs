@@ -37,6 +37,13 @@ public class Obstacle : MonoBehaviour
         TryDestroyBySlash(other);
     }
 
+    // 검 히트박스가 이미 겹친 채 활성화된 경우 Enter 콜백을 놓칠 수 있으므로
+    // 겹쳐 있는 동안에도 한 번 더 확인한다.
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        TryDestroyBySlash(other);
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (_isDestroyed || TryDestroyBySlash(collision.collider))
@@ -118,6 +125,7 @@ public class Obstacle : MonoBehaviour
             else if (type == Type.Hanging)
             {
                 _rigidbody.constraints = RigidbodyConstraints2D.None;
+                _rigidbody.WakeUp();
             }
         }
 

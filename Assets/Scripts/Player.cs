@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -15,6 +16,9 @@ public class Player : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float jumpReleaseVelocityMultiplier = 0.5f;
     [SerializeField] private int comboCount;
     [SerializeField] private float comboSpeedIncreaseRate = 0.01f;
+    private GameObject _comboObject;
+    private Animator _comboAnimator;
+    private TMP_Text _comboText;
     [Header("Hit Stop")]
     [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
     [SerializeField, Min(0f)] private float hitStopDelay = 0.1f;
@@ -35,6 +39,10 @@ public class Player : MonoBehaviour
     [SerializeField, Min(0f)] private float respawnDropHeight = 3f;
     [SerializeField] private PlatformManager platformManager;
     [SerializeField] private GameObject gameOverPanel;
+    [Header("Level Complete")]
+    [SerializeField] private GameObject endSet;
+    [SerializeField, Min(0.01f)] private float endSlowMotionDuration = 0.35f;
+    [SerializeField, Range(0f, 1f)] private float endSlowTimeScale = 0.1f;
     [Header("Attack")]
     [SerializeField] private GameObject slashObject;
     [SerializeField] private GameObject slash1Object;
@@ -72,6 +80,7 @@ public class Player : MonoBehaviour
     private readonly HashSet<int> _activeParryWindows = new HashSet<int>();
     private int _nextParryWindowId;
     private bool _isGameOver;
+    private bool _isLevelComplete;
     public bool IsRespawning { get; private set; }
     public bool IsRecoveringFromStumble { get; private set; }
     private float _stumbleElapsed;
@@ -93,6 +102,7 @@ public class Player : MonoBehaviour
     public void NotifySlashHit()
     {
         comboCount++;
+        ShowCombo();
         _FXCount++;
         
         if (_hitStopCoroutine != null)
@@ -129,7 +139,7 @@ public class Player : MonoBehaviour
     // 장애물 등에 부딪혔을 때 호출한다. Any State -> Stumble 전환을 사용한다.
     public void NotifyStumble()
     {
-        comboCount = 0;
+        ResetCombo();
         if (anim != null)
         {
             anim.SetTrigger(IsStumbleHash);
@@ -182,10 +192,21 @@ public class Player : MonoBehaviour
 
         FindSlashEffectObjects();
         SetSlashEffectActive(null);
+        FindComboUI();
 
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(false);
+        }
+
+        if (endSet == null)
+        {
+            endSet = GameObject.Find("EndSet");
+        }
+
+        if (endSet != null)
+        {
+            endSet.SetActive(false);
         }
 
         _FXCount = 0;
@@ -209,6 +230,11 @@ public class Player : MonoBehaviour
                 RestartGame();
             }
 
+            return;
+        }
+
+        if (_isLevelComplete)
+        {
             return;
         }
 
@@ -251,7 +277,7 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_isGameOver)
+        if (_isGameOver || _isLevelComplete)
         {
             return;
         }
@@ -413,6 +439,50 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void FindComboUI()
+    {
+        _comboObject = GameObject.Find("combo");
+        if (_comboObject == null)
+        {
+            return;
+        }
+
+        _comboAnimator = _comboObject.GetComponent<Animator>();
+        _comboText = _comboObject.GetComponentInChildren<TMP_Text>(true);
+
+        // 시작 화면에서 기본 상태 애니메이션이 한 번 보이지 않도록 숨긴다.
+        _comboObject.SetActive(false);
+    }
+
+    private void ShowCombo()
+    {
+        if (_comboObject == null)
+        {
+            return;
+        }
+
+        if (_comboText != null)
+        {
+            _comboText.text = comboCount.ToString();
+        }
+
+        _comboObject.SetActive(true);
+        if (_comboAnimator != null)
+        {
+            _comboAnimator.Play("combo_Appear", 0, 0f);
+        }
+    }
+
+    private void ResetCombo()
+    {
+        comboCount = 0;
+
+        if (_comboObject != null)
+        {
+            _comboObject.SetActive(false);
+        }
+    }
+
     private void SetSlashEffectActive(AttackType? attackType)
     {
         bool hasSeparateEffects = slash1Object != null || slash2Object != null;
@@ -503,6 +573,61 @@ public class Player : MonoBehaviour
         _hitStopCoroutine = null;
     }
 
+    public void NotifyLevelComplete()
+    {
+        if (_isGameOver || _isLevelComplete)
+        {
+            return;
+        }
+
+        _isLevelComplete = true;
+
+        if (_attackCoroutine != null)
+        {
+            StopCoroutine(_attackCoroutine);
+            _attackCoroutine = null;
+        }
+
+        if (_hitStopCoroutine != null)
+        {
+            StopCoroutine(_hitStopCoroutine);
+            _hitStopCoroutine = null;
+        }
+
+        _isHitStopped = false;
+        Time.timeScale = 1f;
+
+        if (slashHitbox != null)
+        {
+            slashHitbox.enabled = false;
+        }
+
+        SetSlashEffectActive(null);
+        StartCoroutine(LevelCompleteRoutine());
+    }
+
+    private IEnumerator LevelCompleteRoutine()
+    {
+        for (float elapsed = 0f; elapsed < endSlowMotionDuration; elapsed += Time.unscaledDeltaTime)
+        {
+            float progress = Mathf.Clamp01(elapsed / endSlowMotionDuration);
+            Time.timeScale = Mathf.Lerp(1f, endSlowTimeScale, progress);
+            yield return null;
+        }
+
+        if (_rigidbody != null)
+        {
+            _rigidbody.linearVelocity = Vector2.zero;
+        }
+
+        Time.timeScale = 0f;
+
+        if (endSet != null)
+        {
+            endSet.SetActive(true);
+        }
+    }
+
     private void GameOver()
     {
         _isGameOver = true;
@@ -533,7 +658,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator RespawnRoutine()
     {
-        comboCount = 0;
+        ResetCombo();
         _rigidbody.linearVelocity = Vector2.zero;
 
         // 추락 후 리스폰 위치에서 잠시 멈춰 있는 동안에는 Stumble을 보여준다.

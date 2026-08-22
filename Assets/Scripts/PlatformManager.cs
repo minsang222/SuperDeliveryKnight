@@ -14,6 +14,9 @@ public class PlatformManager : MonoBehaviour
     [SerializeField] private Transform firstBuildingEndPoint;
     [SerializeField, FormerlySerializedAs("_spawnOutsideDistance"), FormerlySerializedAs("spawnOutsideDistance"), Min(0f)]
     private float nextBuildingSpawnDistance = 5f;
+    [Header("Finish Building")]
+    [SerializeField] private GameObject endBuilding;
+    [SerializeField, Min(0f)] private float endBuildingSpawnDistance = 100f;
     [SerializeField, FormerlySerializedAs("_randomOffsetXRangeMax"), FormerlySerializedAs("ranOffsetXRangeMax")]
     private float randomOffsetXRangeMax = 5f;
     [SerializeField, FormerlySerializedAs("_randomOffsetXRangeMin"), FormerlySerializedAs("ranOffsetXRangeMin")]
@@ -23,6 +26,8 @@ public class PlatformManager : MonoBehaviour
     private PlatBuilding _firstBuilding;
     private PlatBuilding _lastGeneratedBuilding;
     private Transform _lastEndPoint;
+    private float _firstEndPointX;
+    private bool _hasSpawnedEndBuilding;
 
     private void Awake()
     {
@@ -49,18 +54,28 @@ public class PlatformManager : MonoBehaviour
 
         _firstBuilding = firstBuildingEndPoint.GetComponentInParent<PlatBuilding>();
         _lastEndPoint = firstBuildingEndPoint;
+        _firstEndPointX = firstBuildingEndPoint.position.x;
     }
 
     private void Update()
     {
         // 마지막 EndPoint까지의 남은 거리가 설정값 이하가 되면 다음 건물을 잇는다.
-        if (ShouldSpawnNextBuilding())
+        if (!_hasSpawnedEndBuilding && ShouldSpawnNextBuilding())
         {
             Vector3 nextPosition = _lastEndPoint.position + new Vector3(
                 NextPositionRange(randomOffsetXRangeMin, randomOffsetXRangeMax),
                 0f);
 
-            SpawnPlatform(nextPosition);
+            bool shouldSpawnEndBuilding = _lastEndPoint.position.x >= _firstEndPointX + endBuildingSpawnDistance;
+            if (shouldSpawnEndBuilding && endBuilding != null)
+            {
+                SpawnPlatform(nextPosition, endBuilding);
+                _hasSpawnedEndBuilding = true;
+            }
+            else
+            {
+                SpawnPlatform(nextPosition);
+            }
         }
     }
 
@@ -87,7 +102,11 @@ public class PlatformManager : MonoBehaviour
 
     private void SpawnPlatform(Vector3 startPosition)
     {
-        GameObject prefab = buildings[Random.Range(0, buildings.Length)];
+        SpawnPlatform(startPosition, buildings[Random.Range(0, buildings.Length)]);
+    }
+
+    private void SpawnPlatform(Vector3 startPosition, GameObject prefab)
+    {
         PlatBuilding building = Instantiate(prefab, transform).GetComponent<PlatBuilding>();
 
         // 프리팹마다 피벗 위치가 달라도 StartPoint끼리 이어지도록 보정한다.
