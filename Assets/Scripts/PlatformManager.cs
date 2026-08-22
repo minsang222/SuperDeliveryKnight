@@ -40,7 +40,7 @@ public class PlatformManager : MonoBehaviour
 
         Instance = this;
 
-        DefaultPositionRandomSeed = 0;
+        DefaultPositionRandomSeed = 1601;
         _positionRandom = new System.Random(DefaultPositionRandomSeed);
     }
 
