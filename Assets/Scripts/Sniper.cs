@@ -90,7 +90,7 @@ public class Sniper : MonoBehaviour
                 _nextShot = 3;
                 if (audioSource != null && warningSFX != null)
                 {
-                    audioSource.PlayOneShot(warningSFX, 0.7f);
+                    audioSource.PlayOneShot(warningSFX, 0.5f);
                 }
                 return;
             }
@@ -98,7 +98,7 @@ public class Sniper : MonoBehaviour
             // 효과음 재생
             if (audioSource != null && warningSFX != null)
             {
-                audioSource.PlayOneShot(warningSFX, 0.7f);
+                audioSource.PlayOneShot(warningSFX, 0.5f);
             }
             return;
         }

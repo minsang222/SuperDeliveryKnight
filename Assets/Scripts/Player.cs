@@ -394,7 +394,7 @@ public class Player : MonoBehaviour
 
             if (audioSource != null && parrySFX != null)
             {
-                audioSource.PlayOneShot(parrySFX, 0.5f);
+                audioSource.PlayOneShot(parrySFX, 0.35f);
             }
         }
 
