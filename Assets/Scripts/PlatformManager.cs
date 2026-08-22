@@ -8,23 +8,26 @@ public class PlatformManager : MonoBehaviour
 
     [SerializeField, FormerlySerializedAs("_buildings")] private GameObject[] buildings;
     [SerializeField, FormerlySerializedAs("_obstacles")] private GameObject[] obstacles;
-    [SerializeField] private GameObject[] FBGbuildings;
-    [SerializeField] private GameObject[] hangingObstacles;
-    [SerializeField, FormerlySerializedAs("_spawnOutsideDistance")] private float spawnOutsideDistance = 5f;
     [SerializeField] private Player player;
+    [Header("Building Chain")]
+    [Tooltip("씬에 미리 배치한 첫 건물의 EndPoint Transform")]
+    [SerializeField] private Transform firstBuildingEndPoint;
+    [SerializeField, FormerlySerializedAs("_spawnOutsideDistance"), FormerlySerializedAs("spawnOutsideDistance"), Min(0f)]
+    private float nextBuildingSpawnDistance = 5f;
+    [Header("Finish Building")]
+    [SerializeField] private GameObject endBuilding;
+    [SerializeField, Min(0f)] private float endBuildingSpawnDistance = 100f;
     [SerializeField, FormerlySerializedAs("_randomOffsetXRangeMax"), FormerlySerializedAs("ranOffsetXRangeMax")]
     private float randomOffsetXRangeMax = 5f;
     [SerializeField, FormerlySerializedAs("_randomOffsetXRangeMin"), FormerlySerializedAs("ranOffsetXRangeMin")]
     private float randomOffsetXRangeMin = 2f;
-    [Header("FBG Building Spawn")]
-    [SerializeField, Min(0f)] private float fbgSpawnIntervalMin = 1.5f;
-    [SerializeField, Min(0f)] private float fbgSpawnIntervalMax = 3.5f;
-    [SerializeField, Min(0f)] private float fbgHeightAboveEndPoint = 5f;
     
-    private PlatBuilding _lastBuilding;
-    private Camera _mainCamera;
     private System.Random _positionRandom;
-    private float _nextFbgSpawnTime;
+    private PlatBuilding _firstBuilding;
+    private PlatBuilding _lastGeneratedBuilding;
+    private Transform _lastEndPoint;
+    private float _firstEndPointX;
+    private bool _hasSpawnedEndBuilding;
 
     private void Awake()
     {
@@ -38,33 +41,53 @@ public class PlatformManager : MonoBehaviour
         Instance = this;
 
         DefaultPositionRandomSeed = 0;
-        _mainCamera = Camera.main;
         _positionRandom = new System.Random(DefaultPositionRandomSeed);
     }
 
     private void Start()
     {
-        SpawnPlatform(new Vector3(GetSpawnX(), 0f, 0f));
-        ScheduleNextFbgSpawn();
+        if (firstBuildingEndPoint == null)
+        {
+            Debug.LogError("PlatformManager에 첫 건물의 EndPoint를 지정해야 합니다.", this);
+            return;
+        }
+
+        _firstBuilding = firstBuildingEndPoint.GetComponentInParent<PlatBuilding>();
+        _lastEndPoint = firstBuildingEndPoint;
+        _firstEndPointX = firstBuildingEndPoint.position.x;
     }
 
     private void Update()
     {
-        // 마지막 건물 끝이 화면 앞쪽 여유 구간에 들어오면 다음 건물을 미리 준비한다.
-        if (_lastBuilding != null && _lastBuilding.EndPoint.position.x <= GetSpawnX())
+        // 마지막 EndPoint까지의 남은 거리가 설정값 이하가 되면 다음 건물을 잇는다.
+        if (!_hasSpawnedEndBuilding && ShouldSpawnNextBuilding())
         {
-            Vector3 nextPosition = _lastBuilding.EndPoint.position + new Vector3(
+            Vector3 nextPosition = _lastEndPoint.position + new Vector3(
                 NextPositionRange(randomOffsetXRangeMin, randomOffsetXRangeMax),
                 0f);
 
-            SpawnPlatform(nextPosition);
+            bool shouldSpawnEndBuilding = _lastEndPoint.position.x >= _firstEndPointX + endBuildingSpawnDistance;
+            if (shouldSpawnEndBuilding && endBuilding != null)
+            {
+                SpawnPlatform(nextPosition, endBuilding);
+                _hasSpawnedEndBuilding = true;
+            }
+            else
+            {
+                SpawnPlatform(nextPosition);
+            }
+        }
+    }
+
+    private bool ShouldSpawnNextBuilding()
+    {
+        if (_lastEndPoint == null || player == null)
+        {
+            return false;
         }
 
-        if (Time.time >= _nextFbgSpawnTime)
-        {
-            SpawnFbgBuilding();
-            ScheduleNextFbgSpawn();
-        }
+        float distanceToLastEndPoint = _lastEndPoint.position.x - player.transform.position.x;
+        return distanceToLastEndPoint <= nextBuildingSpawnDistance;
     }
 
     public void SetPositionRandomSeed(int seed)
@@ -79,16 +102,20 @@ public class PlatformManager : MonoBehaviour
 
     private void SpawnPlatform(Vector3 startPosition)
     {
-        GameObject prefab = buildings[Random.Range(0, buildings.Length)];
+        SpawnPlatform(startPosition, buildings[Random.Range(0, buildings.Length)]);
+    }
+
+    private void SpawnPlatform(Vector3 startPosition, GameObject prefab)
+    {
         PlatBuilding building = Instantiate(prefab, transform).GetComponent<PlatBuilding>();
 
         // 프리팹마다 피벗 위치가 달라도 StartPoint끼리 이어지도록 보정한다.
         Vector3 startPointOffset = building.StartPoint.position - building.transform.position;
         building.transform.position = startPosition - startPointOffset;
 
-        if (_lastBuilding != null && player != null)
+        if (_lastEndPoint != null && player != null)
         {
-            Vector2 margin = player.CanReachChunk(_lastBuilding.EndPoint, building.StartPoint);
+            Vector2 margin = player.CanReachChunk(_lastEndPoint, building.StartPoint);
             if (margin.x < 0f)
             {
                 building.transform.position += new Vector3(margin.x, 0f, 0f);
@@ -101,7 +128,7 @@ public class PlatformManager : MonoBehaviour
             const int maxHorizontalAdjustments = 100;
             for (int i = 0; i < maxHorizontalAdjustments; i++)
             {
-                margin = player.CanReachChunk(_lastBuilding.EndPoint, building.StartPoint);
+                margin = player.CanReachChunk(_lastEndPoint, building.StartPoint);
                 if (margin.y >= 0f || margin.x <= 0f)
                 {
                     break;
@@ -113,7 +140,8 @@ public class PlatformManager : MonoBehaviour
 
         SpawnObstacles(building);
 
-        _lastBuilding = building;
+        _lastGeneratedBuilding = building;
+        _lastEndPoint = building.EndPoint;
     }
 
     private void SpawnObstacles(PlatBuilding building)
@@ -147,65 +175,6 @@ public class PlatformManager : MonoBehaviour
         }
     }
 
-    private void SpawnFbgBuilding()
-    {
-        if (FBGbuildings == null || FBGbuildings.Length == 0 || _lastBuilding == null ||
-            _lastBuilding.EndPoint == null)
-        {
-            return;
-        }
-
-        GameObject prefab = FBGbuildings[Random.Range(0, FBGbuildings.Length)];
-        if (prefab == null)
-        {
-            return;
-        }
-
-        Vector3 position = new Vector3(
-            GetSpawnX(),
-            _lastBuilding.EndPoint.position.y + fbgHeightAboveEndPoint,
-            0f);
-        FBGBuilding building = Instantiate(prefab, position, Quaternion.identity, transform)
-            .GetComponent<FBGBuilding>();
-
-        if (building != null)
-        {
-            SpawnHangingObstacles(building);
-        }
-    }
-
-    private void SpawnHangingObstacles(FBGBuilding building)
-    {
-        if (hangingObstacles == null || hangingObstacles.Length == 0 || building.ObstaclePoints == null)
-        {
-            return;
-        }
-
-        foreach (Transform obstaclePoint in building.ObstaclePoints)
-        {
-            if (obstaclePoint == null)
-            {
-                continue;
-            }
-
-            GameObject prefab = hangingObstacles[Random.Range(0, hangingObstacles.Length)];
-            if (prefab == null)
-            {
-                continue;
-            }
-
-            GameObject obstacle = Instantiate(prefab, obstaclePoint.position, obstaclePoint.rotation);
-            obstacle.transform.SetParent(building.transform, true);
-        }
-    }
-
-    private void ScheduleNextFbgSpawn()
-    {
-        float min = Mathf.Min(fbgSpawnIntervalMin, fbgSpawnIntervalMax);
-        float max = Mathf.Max(fbgSpawnIntervalMin, fbgSpawnIntervalMax);
-        _nextFbgSpawnTime = Time.time + Random.Range(min, max);
-    }
-
     public bool TryGetRespawnPoint(float playerX, float dropHeight, out Vector3 position)
     {
         PlatBuilding nextBuilding = null;
@@ -223,7 +192,9 @@ public class PlatformManager : MonoBehaviour
             }
         }
 
-        nextBuilding ??= _lastBuilding;
+        nextBuilding ??= _lastGeneratedBuilding != null
+            ? _lastGeneratedBuilding
+            : _firstBuilding;
         if (nextBuilding == null || nextBuilding.StartPoint == null)
         {
             position = default;
@@ -233,13 +204,6 @@ public class PlatformManager : MonoBehaviour
         position = nextBuilding.StartPoint.position + Vector3.up * dropHeight;
         return true;
     }
-
-
-    private float GetSpawnX()
-    {
-        return _mainCamera.ViewportToWorldPoint(new Vector3(1f, 0.5f, -_mainCamera.transform.position.z)).x + spawnOutsideDistance;
-    }
-    
     private void OnDestroy()
     {
         if (Instance == this)

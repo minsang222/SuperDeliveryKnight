@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -11,10 +12,16 @@ public class Player : MonoBehaviour
     
     [SerializeField, Min(0f)] private float startSpeed = 10f;
     [SerializeField, Min(0f)] private float jumpForce = 20f;
+    [Header("Variable Jump")]
+    [SerializeField, Range(0f, 1f)] private float jumpReleaseVelocityMultiplier = 0.5f;
     [SerializeField] private int comboCount;
     [SerializeField] private float comboSpeedIncreaseRate = 0.01f;
+    private GameObject _comboObject;
+    private Animator _comboAnimator;
+    private TMP_Text _comboText;
     [Header("Hit Stop")]
     [SerializeField, Min(0f)] private float hitStopDuration = 0.05f;
+    [SerializeField, Min(0f)] private float hitStopDelay = 0.1f;
     [Header("Attack Timing")]
     [SerializeField, Min(0f)] private float attack12Interval = 0.2f;
     [SerializeField, Min(0f)] private float afterAttackInterval = 1f;
@@ -32,13 +39,17 @@ public class Player : MonoBehaviour
     [SerializeField, Min(0f)] private float respawnDropHeight = 3f;
     [SerializeField] private PlatformManager platformManager;
     [SerializeField] private GameObject gameOverPanel;
+    [Header("Level Complete")]
+    [SerializeField] private GameObject endSet;
+    [SerializeField, Min(0.01f)] private float endSlowMotionDuration = 0.35f;
+    [SerializeField, Range(0f, 1f)] private float endSlowTimeScale = 0.1f;
     [Header("Attack")]
     [SerializeField] private GameObject slashObject;
+    [SerializeField] private GameObject slash1Object;
+    [SerializeField] private GameObject slash2Object;
     [SerializeField] private BoxCollider2D slashHitbox;
-    [SerializeField, Min(0f)] private float attackDuration = 0.15f;
-
-    [SerializeField, Min(0f)]
-    private float attackCooldown = 0.4f;
+    [SerializeField, Min(0f)] private float attackDuration = 0.25f;
+    [SerializeField, Min(0f)] private float attackHitboxDuration = 0.1f;
     [Header("Stumble")]
     [SerializeField, Min(0f)] private float stumbleKnockbackSpeed = 4f;
     [SerializeField, Min(0f)] private float stumbleKnockbackDuration = 0.15f;
@@ -64,10 +75,12 @@ public class Player : MonoBehaviour
     private float _respawnElapsed;
     private Coroutine _attackCoroutine;
     private Coroutine _hitStopCoroutine;
+    private bool _isHitStopped;
     private Sniper _sniper;
     private readonly HashSet<int> _activeParryWindows = new HashSet<int>();
     private int _nextParryWindowId;
     private bool _isGameOver;
+    private bool _isLevelComplete;
     public bool IsRespawning { get; private set; }
     public bool IsRecoveringFromStumble { get; private set; }
     private float _stumbleElapsed;
@@ -89,11 +102,20 @@ public class Player : MonoBehaviour
     public void NotifySlashHit()
     {
         comboCount++;
+        ShowCombo();
         _FXCount++;
         
-                if (_hitStopCoroutine != null)
+        if (_hitStopCoroutine != null)
         {
             StopCoroutine(_hitStopCoroutine);
+            _hitStopCoroutine = null;
+
+            // 이전 히트 스톱 도중 새 타격이 들어오면 먼저 시간을 정상으로 되돌린다.
+            if (_isHitStopped && !_isGameOver)
+            {
+                Time.timeScale = 1f;
+                _isHitStopped = false;
+            }
         }
         
         if (audioSource != null) {
@@ -111,18 +133,13 @@ public class Player : MonoBehaviour
             }
         }
         
-        if (_hitStopCoroutine != null)
-        {
-            StopCoroutine(_hitStopCoroutine);
-        }
-
         _hitStopCoroutine = StartCoroutine(ApplyHitStop());
     }
 
     // 장애물 등에 부딪혔을 때 호출한다. Any State -> Stumble 전환을 사용한다.
     public void NotifyStumble()
     {
-        comboCount = 0;
+        ResetCombo();
         if (anim != null)
         {
             anim.SetTrigger(IsStumbleHash);
@@ -173,14 +190,23 @@ public class Player : MonoBehaviour
             slashHitbox.enabled = false;
         }
 
-        if (slashObject != null)
-        {
-            slashObject.SetActive(false);
-        }
+        FindSlashEffectObjects();
+        SetSlashEffectActive(null);
+        FindComboUI();
 
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(false);
+        }
+
+        if (endSet == null)
+        {
+            endSet = GameObject.Find("EndSet");
+        }
+
+        if (endSet != null)
+        {
+            endSet.SetActive(false);
         }
 
         _FXCount = 0;
@@ -207,6 +233,11 @@ public class Player : MonoBehaviour
             return;
         }
 
+        if (_isLevelComplete)
+        {
+            return;
+        }
+
         if (IsRespawning)
         {
             // 리스폰 중에는 조작 불가능한 상태에 놓인다.
@@ -218,6 +249,12 @@ public class Player : MonoBehaviour
         if (_isGrounded && Keyboard.current != null && Keyboard.current.zKey.wasPressedThisFrame)
         {
             Jump();
+        }
+
+        // 상승 중 키를 놓는 시점에 따라 점프 높이를 낮춘다.
+        if (Keyboard.current != null && Keyboard.current.zKey.wasReleasedThisFrame && _rigidbody.linearVelocityY > 0f)
+        {
+            _rigidbody.linearVelocityY *= jumpReleaseVelocityMultiplier;
         }
 
         if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
@@ -240,7 +277,7 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_isGameOver)
+        if (_isGameOver || _isLevelComplete)
         {
             return;
         }
@@ -344,10 +381,7 @@ public class Player : MonoBehaviour
             StopCoroutine(_attackCoroutine);
         }
 
-        if (slashObject != null)
-        {
-            slashObject.SetActive(true);
-        }
+        SetSlashEffectActive(attackType);
 
         if (slashHitbox != null)
         {
@@ -369,23 +403,114 @@ public class Player : MonoBehaviour
 
     private IEnumerator DisableAttackAfterDelay()
     {
-        yield return new WaitForSecondsRealtime(Time.fixedDeltaTime);
-        
+        // 판정은 공격 연출 전체보다 짧게 유지해 한 번의 휘두름만 맞게 한다.
+        yield return new WaitForSecondsRealtime(Mathf.Min(attackHitboxDuration, attackDuration));
+
         if (slashHitbox != null)
         {
             slashHitbox.enabled = false;
         }
-        
-        yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackDuration - Time.fixedDeltaTime));
 
-        if (slashObject != null)
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackDuration - attackHitboxDuration));
+
+        SetSlashEffectActive(null);
+        _attackCoroutine = null;
+    }
+
+    private void FindSlashEffectObjects()
+    {
+        // Inspector 연결을 우선하고, 아직 연결하지 않았다면 Player 자식의 이름으로 찾는다.
+        if (slash1Object == null)
+        {
+            Transform slash1 = transform.Find("Slash1");
+            if (slash1 != null)
+            {
+                slash1Object = slash1.gameObject;
+            }
+        }
+
+        if (slash2Object == null)
+        {
+            Transform slash2 = transform.Find("Slash2");
+            if (slash2 != null)
+            {
+                slash2Object = slash2.gameObject;
+            }
+        }
+    }
+
+    private void FindComboUI()
+    {
+        _comboObject = GameObject.Find("combo");
+        if (_comboObject == null)
+        {
+            return;
+        }
+
+        _comboAnimator = _comboObject.GetComponent<Animator>();
+        _comboText = _comboObject.GetComponentInChildren<TMP_Text>(true);
+
+        // 시작 화면에서 기본 상태 애니메이션이 한 번 보이지 않도록 숨긴다.
+        _comboObject.SetActive(false);
+    }
+
+    private void ShowCombo()
+    {
+        if (_comboObject == null)
+        {
+            return;
+        }
+
+        if (_comboText != null)
+        {
+            _comboText.text = comboCount.ToString();
+        }
+
+        _comboObject.SetActive(true);
+        if (_comboAnimator != null)
+        {
+            _comboAnimator.Play("combo_Appear", 0, 0f);
+        }
+    }
+
+    private void ResetCombo()
+    {
+        comboCount = 0;
+
+        if (_comboObject != null)
+        {
+            _comboObject.SetActive(false);
+        }
+    }
+
+    private void SetSlashEffectActive(AttackType? attackType)
+    {
+        bool hasSeparateEffects = slash1Object != null || slash2Object != null;
+        if (!hasSeparateEffects)
+        {
+            if (slashObject != null)
+            {
+                slashObject.SetActive(attackType.HasValue);
+            }
+
+            return;
+        }
+
+        if (slash1Object != null)
+        {
+            slash1Object.SetActive(attackType == AttackType.Attack1);
+        }
+
+        if (slash2Object != null)
+        {
+            slash2Object.SetActive(attackType == AttackType.Attack2);
+        }
+
+        // 기존 공용 이펙트가 별도 오브젝트가 아니라면 함께 보이지 않도록 숨긴다.
+        if (slashObject != null && slashObject != slash1Object && slashObject != slash2Object)
         {
             slashObject.SetActive(false);
         }
-
-        yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackCooldown - attackDuration));
-        
-        _attackCoroutine = null;
     }
 
     private void UpdateMovementAnimationParameters()
@@ -431,7 +556,11 @@ public class Player : MonoBehaviour
 
     private IEnumerator ApplyHitStop()
     {
+        // 검이 물체에 닿은 뒤의 타격감을 위해 잠시 후 히트 스톱을 시작한다.
+        yield return new WaitForSecondsRealtime(hitStopDelay);
+
         Time.timeScale = 0f;
+        _isHitStopped = true;
         // 일반 대기는 timeScale 0에서 끝나지 않으므로 실제 시간 기준으로 히트스톱을 해제한다.
         yield return new WaitForSecondsRealtime(hitStopDuration);
 
@@ -440,7 +569,63 @@ public class Player : MonoBehaviour
             Time.timeScale = 1f;
         }
 
+        _isHitStopped = false;
         _hitStopCoroutine = null;
+    }
+
+    public void NotifyLevelComplete()
+    {
+        if (_isGameOver || _isLevelComplete)
+        {
+            return;
+        }
+
+        _isLevelComplete = true;
+
+        if (_attackCoroutine != null)
+        {
+            StopCoroutine(_attackCoroutine);
+            _attackCoroutine = null;
+        }
+
+        if (_hitStopCoroutine != null)
+        {
+            StopCoroutine(_hitStopCoroutine);
+            _hitStopCoroutine = null;
+        }
+
+        _isHitStopped = false;
+        Time.timeScale = 1f;
+
+        if (slashHitbox != null)
+        {
+            slashHitbox.enabled = false;
+        }
+
+        SetSlashEffectActive(null);
+        StartCoroutine(LevelCompleteRoutine());
+    }
+
+    private IEnumerator LevelCompleteRoutine()
+    {
+        for (float elapsed = 0f; elapsed < endSlowMotionDuration; elapsed += Time.unscaledDeltaTime)
+        {
+            float progress = Mathf.Clamp01(elapsed / endSlowMotionDuration);
+            Time.timeScale = Mathf.Lerp(1f, endSlowTimeScale, progress);
+            yield return null;
+        }
+
+        if (_rigidbody != null)
+        {
+            _rigidbody.linearVelocity = Vector2.zero;
+        }
+
+        Time.timeScale = 0f;
+
+        if (endSet != null)
+        {
+            endSet.SetActive(true);
+        }
     }
 
     private void GameOver()
@@ -473,8 +658,16 @@ public class Player : MonoBehaviour
 
     private IEnumerator RespawnRoutine()
     {
-        comboCount = 0;
+        ResetCombo();
         _rigidbody.linearVelocity = Vector2.zero;
+
+        // 추락 후 리스폰 위치에서 잠시 멈춰 있는 동안에는 Stumble을 보여준다.
+        if (anim != null)
+        {
+            anim.SetBool(IsJumpingHash, false);
+            anim.SetBool(IsFallingHash, false);
+            anim.SetTrigger(IsStumbleHash);
+        }
 
         if (platformManager != null &&
             platformManager.TryGetRespawnPoint(transform.position.x, respawnDropHeight, out Vector3 respawnPosition))
