@@ -198,10 +198,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1000
   m_MaskInteraction: 0
   m_Sprite: {fileID: 935040630312203654, guid: 4179eff135c28be46aaeea60bd6d946f, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5330188, g: 0.5330188, b: 0.5330188, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -934,6 +934,9 @@ MonoBehaviour:
   - {fileID: 934717204212984663, guid: bd0fe4564aeec2a4cbfd0b4111312201, type: 3}
   - {fileID: 4945831164584378145, guid: 361aa4aeab13a594d94cc1db353056e6, type: 3}
   - {fileID: 5287454646696330926, guid: e5061867c5262ac449458b99383b9faf, type: 3}
+  - {fileID: 5361540676778321835, guid: 810fcaa5de32ee644824ae9747850828, type: 3}
+  - {fileID: 5361540676778321835, guid: 3474a1c12cd7acf47b1f24ac8a9a3f33, type: 3}
+  - {fileID: 5361540676778321835, guid: 1b02133382949274f8ec060da241fc04, type: 3}
   obstacles:
   - {fileID: 7169398239668604163, guid: 62a0f3f1a55ee0d40a40c2a1562a88c0, type: 3}
   - {fileID: 7169398239668604163, guid: d1246a77e8c7188498f1c450d98709a2, type: 3}
@@ -1044,7 +1047,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -100
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 140725306825790505, guid: e291ffd8d54ba2e4f8f6d3e11b6b8d9d, type: 3}
+  m_Sprite: {fileID: -932486150, guid: 768bea0def0ce4b499ba95a587652753, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1586,7 +1589,7 @@ Transform:
   m_GameObject: {fileID: 546300318}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -3.03, y: 1.59, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3837,7 +3840,7 @@ Transform:
   m_GameObject: {fileID: 1320175897}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.04, y: -9.69, z: 0}
+  m_LocalPosition: {x: 2.95, y: -7.9, z: 0}
   m_LocalScale: {x: 30, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4433,7 +4436,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -100
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -8129745637785899331, guid: f5d3e654e86f14548a62b5f2831c7c8a, type: 3}
+  m_Sprite: {fileID: 7770432592720255916, guid: 768bea0def0ce4b499ba95a587652753, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
