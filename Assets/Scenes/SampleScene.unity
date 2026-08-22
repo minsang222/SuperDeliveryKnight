@@ -1121,7 +1121,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &882181342
 Transform:
   m_ObjectHideFlags: 0
@@ -1672,13 +1672,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player
   startSpeed: 20
   jumpForce: 20
-  jumpReleaseVelocityMultiplier: 0.5
   comboCount: 0
   comboSpeedIncreaseRate: 0.01
   hitStopDuration: 0.1
   hitStopDelay: 0.1
   attack12Interval: 0.2
-  afterAttackInterval: 0.3
+  afterAttackInterval: 0.25
   maxAirborneTime: 2.5
   audioSource: {fileID: 569346253}
   parrySFX: {fileID: 8300000, guid: 93f6e49d893da4f8781fcdb1889ade25, type: 3}
@@ -1693,8 +1692,8 @@ MonoBehaviour:
   slash1Object: {fileID: 105850540}
   slash2Object: {fileID: 882181341}
   slashHitbox: {fileID: 1140592674}
-  attackDuration: 0.15
-  attackCooldown: 0.4
+  attackDuration: 0.25
+  attackHitboxDuration: 0.1
   stumbleKnockbackSpeed: 4
   stumbleKnockbackDuration: 0.15
   stumbleStartSpeedMultiplier: 0.25

@@ -11,6 +11,8 @@ public class Player : MonoBehaviour
     
     [SerializeField, Min(0f)] private float startSpeed = 10f;
     [SerializeField, Min(0f)] private float jumpForce = 20f;
+    [Header("Variable Jump")]
+    [SerializeField, Range(0f, 1f)] private float jumpReleaseVelocityMultiplier = 0.5f;
     [SerializeField] private int comboCount;
     [SerializeField] private float comboSpeedIncreaseRate = 0.01f;
     [Header("Hit Stop")]
@@ -38,10 +40,8 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject slash1Object;
     [SerializeField] private GameObject slash2Object;
     [SerializeField] private BoxCollider2D slashHitbox;
-    [SerializeField, Min(0f)] private float attackDuration = 0.15f;
-
-    [SerializeField, Min(0f)]
-    private float attackCooldown = 0.4f;
+    [SerializeField, Min(0f)] private float attackDuration = 0.25f;
+    [SerializeField, Min(0f)] private float attackHitboxDuration = 0.1f;
     [Header("Stumble")]
     [SerializeField, Min(0f)] private float stumbleKnockbackSpeed = 4f;
     [SerializeField, Min(0f)] private float stumbleKnockbackDuration = 0.15f;
@@ -225,6 +225,12 @@ public class Player : MonoBehaviour
             Jump();
         }
 
+        // 상승 중 키를 놓는 시점에 따라 점프 높이를 낮춘다.
+        if (Keyboard.current != null && Keyboard.current.zKey.wasReleasedThisFrame && _rigidbody.linearVelocityY > 0f)
+        {
+            _rigidbody.linearVelocityY *= jumpReleaseVelocityMultiplier;
+        }
+
         if (Keyboard.current != null && Keyboard.current.xKey.wasPressedThisFrame)
         {
             Attack();
@@ -371,19 +377,17 @@ public class Player : MonoBehaviour
 
     private IEnumerator DisableAttackAfterDelay()
     {
-        yield return new WaitForSecondsRealtime(Time.fixedDeltaTime);
-        
+        // 판정은 공격 연출 전체보다 짧게 유지해 한 번의 휘두름만 맞게 한다.
+        yield return new WaitForSecondsRealtime(Mathf.Min(attackHitboxDuration, attackDuration));
+
         if (slashHitbox != null)
         {
             slashHitbox.enabled = false;
         }
-        
-        yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackDuration - Time.fixedDeltaTime));
+
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackDuration - attackHitboxDuration));
 
         SetSlashEffectActive(null);
-
-        yield return new WaitForSecondsRealtime(Mathf.Max(0f, attackCooldown - attackDuration));
-        
         _attackCoroutine = null;
     }
 
@@ -531,6 +535,14 @@ public class Player : MonoBehaviour
     {
         comboCount = 0;
         _rigidbody.linearVelocity = Vector2.zero;
+
+        // 추락 후 리스폰 위치에서 잠시 멈춰 있는 동안에는 Stumble을 보여준다.
+        if (anim != null)
+        {
+            anim.SetBool(IsJumpingHash, false);
+            anim.SetBool(IsFallingHash, false);
+            anim.SetTrigger(IsStumbleHash);
+        }
 
         if (platformManager != null &&
             platformManager.TryGetRespawnPoint(transform.position.x, respawnDropHeight, out Vector3 respawnPosition))
