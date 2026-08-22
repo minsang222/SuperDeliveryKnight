@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="c43d1c34-8ace-4f6c-a9b2-5bfa8d3ebb53" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SuperDeliveryKnight/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SuperDeliveryKnight/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PlatformManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PlatformManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Sniper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Sniper.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

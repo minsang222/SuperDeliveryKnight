@@ -10,8 +10,8 @@ public class Sniper : MonoBehaviour
     
     // 보고 반응하기 거의 불가능한 윈도우여야 하므로, 0.2초 이하를 권장한다.
     [SerializeField, Min(0f)] private float parryableWindow = 0.2f;
-    [SerializeField, Min(0f)] private double thresholdChance = 0.2f;
-    [SerializeField, Min(0f)] private double thresholdChanceOfDouble = 0.05f;
+    [SerializeField, Min(0f)] private double thresholdChance = 0.16f;
+    [SerializeField, Min(0f)] private double thresholdChanceOfDouble = 0.04f;
     
     private System.Random _myDefaultPositionRandomSeed;
     
@@ -31,7 +31,7 @@ public class Sniper : MonoBehaviour
     private int _nextShot;
     private Clock _clock;
     // The sniper is intentionally scheduled only once after this position.
-    private const float SniperSpawnX = 10f;
+    private const float SniperSpawnX = 165f;
     private bool _hasScheduledHardcodedShot;
     [SerializeField] private LineRenderer redRay;
     private Coroutine redRayCoroutine;
@@ -117,20 +117,23 @@ public class Sniper : MonoBehaviour
         
         // TODO: (정식 버전에서는 오브젝트 스트림을 중앙에서 발행. 게임잼에서는 배제)
         var res = _myDefaultPositionRandomSeed.NextDouble();
-        if (res < thresholdChanceOfDouble)
+        if (_hasScheduledHardcodedShot && _nextShot <= 0)
         {
-            _nextShot = 4;
-            _isDouble = true;
-            return;
+            if (res < thresholdChanceOfDouble)
+            {
+                _nextShot = 4;
+                _isDouble = true;
+                return;
+            }
+
+            if (res < thresholdChance)
+            {
+                _nextShot = 4;
+                return;
+                // TODO: 다음 뒷배경 청크 생성
+            }
         }
 
-        if (res < thresholdChance)
-        {
-            _nextShot = 4;
-            return;
-            // TODO: 다음 뒷배경 청크 생성
-        }
-        
         if (_hasScheduledHardcodedShot || Player.Instance == null ||
             Player.Instance.transform.position.x < SniperSpawnX)
         {
