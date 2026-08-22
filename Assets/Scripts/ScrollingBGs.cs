@@ -39,49 +39,6 @@ public class ScrollingBGs : MonoBehaviour
     private static void ScrollLayer(GameObject[] sprites, float moveSpeed, float verticalMovement,
         float offset, float playerX)
     {
-        return;
-        if (sprites == null || sprites.Length == 0)
-        {
-            return;
-        }
-
-        foreach (GameObject sprite in sprites)
-        {
-            if (sprite == null)
-            {
-                continue;
-            }
-
-           // if (Player.Instance.IsRespawning || Player.Instance.IsRecoveringFromStumble) moveSpeed = 0f;
-
-            Transform spriteTransform = sprite.transform;
-            Vector3 position = spriteTransform.position;
-            position.x += moveSpeed * Time.deltaTime;
-            position.y += verticalMovement;
-            spriteTransform.position = position;
-        }
-
-        float recycleX = playerX - offset;
-        foreach (GameObject sprite in sprites)
-        {
-            if (sprite == null || sprite.transform.position.x >= recycleX)
-            {
-                continue;
-            }
-
-            float rightMostX = float.NegativeInfinity;
-            foreach (GameObject otherSprite in sprites)
-            {
-                if (otherSprite != null && otherSprite != sprite)
-                {
-                    rightMostX = Mathf.Max(rightMostX, otherSprite.transform.position.x);
-                }
-            }
-
-            sprite.transform.position = new Vector3(
-                float.IsNegativeInfinity(rightMostX) ? playerX + offset : rightMostX + offset,
-                sprite.transform.position.y,
-                sprite.transform.position.z);
-        }
+        // REFACTOR: do nothing
     }
 }
