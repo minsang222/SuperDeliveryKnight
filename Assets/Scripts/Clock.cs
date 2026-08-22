@@ -31,7 +31,7 @@ public class Clock : MonoBehaviour
         _timeElapsed = Mathf.FloorToInt(_fTimeElapsed * 720f);
         if (Mathf.FloorToInt(tmp / 300) < Mathf.FloorToInt(_timeElapsed / 300))
         {
-            Heartbeat?.Invoke(_timeElapsed);
+            Heartbeat?.Invoke(_timeElapsed / 300);
         }
     }
 
