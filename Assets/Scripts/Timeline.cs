@@ -9,8 +9,8 @@ public class Timeline : MonoBehaviour
     [SerializeField] private TMP_Text currentTimeText;
     [SerializeField] private int timeLimit = 19;
     public int currentTime { get; private set; }
-    private bool _levelAlive;
-    
+    public bool LevelAlive { get; private set; }
+
     [SerializeField] private Slider slider;
     [SerializeField] private float stageStartX = 0f;
     [SerializeField] private float stageEndX = 1000f;
@@ -46,7 +46,7 @@ public class Timeline : MonoBehaviour
         }
 
         currentTime = timeLimit;
-        _levelAlive = true;
+        LevelAlive = true;
     }
 
     // Update is called once per frame
@@ -60,7 +60,7 @@ public class Timeline : MonoBehaviour
     
     private void SetCurrentTime(int value)
     {
-        if (!_levelAlive) return;
+        if (!LevelAlive) return;
         currentTime = Mathf.Max(0, value);
         if (currentTimeText != null)
             currentTimeText.text = currentTime.ToString();
@@ -77,7 +77,7 @@ public class Timeline : MonoBehaviour
 
     private void OnLevelOver()
     {
-        _levelAlive = false;
+        LevelAlive = false;
         _clock.Heartbeat -= OnHeartbeat;
     }
 
