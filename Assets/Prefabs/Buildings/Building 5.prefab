@@ -906,7 +906,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: FBGBuilding 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4080104936449520173, guid: e2615cc54b53a5b44945e4274fc1cbde, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -980,7 +981,8 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: -5
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6969886087013048221, guid: 7db43113a59007b4db37fc205bbd602d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1059,7 +1061,8 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 4920324463145163586, guid: 6cdc9c61d272c2b4f9ac48dec0c248d0, type: 3}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6969886087013048221, guid: 29acb46915b5b9643815db7a2badea7d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

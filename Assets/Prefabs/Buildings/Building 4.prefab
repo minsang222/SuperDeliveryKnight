@@ -473,7 +473,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: FBGBuilding
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1426216537546269655, guid: da9e07ea0ab9c1640834bf451200483f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -613,7 +614,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6969886087013048221, guid: 7db43113a59007b4db37fc205bbd602d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
