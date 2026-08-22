@@ -7,14 +7,16 @@ public class Timeline : MonoBehaviour
 {
     public static Timeline Instance { get; private set; }
     [SerializeField] private TMP_Text currentTimeText;
-    [SerializeField] private int timeLimit = 99;
+    [SerializeField] private int timeLimit = 19;
     public int currentTime { get; private set; }
+    private bool _levelAlive;
     
     [SerializeField] private Slider slider;
     [SerializeField] private float stageStartX = 0f;
     [SerializeField] private float stageEndX = 1000f;
     
     private Clock _clock;
+    private Player _player;
 
     private void Awake()
     {
@@ -37,13 +39,19 @@ public class Timeline : MonoBehaviour
             _clock.Heartbeat += OnHeartbeat;
         }
 
+        _player = Player.Instance;
+        if (Player.Instance != null)
+        {
+            _player.levelOver += OnLevelOver;
+        }
+
         currentTime = timeLimit;
+        _levelAlive = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Player.Instance == null) return;
 
         float x = Player.Instance.transform.position.x;
         slider.SetValueWithoutNotify(
@@ -52,6 +60,7 @@ public class Timeline : MonoBehaviour
     
     private void SetCurrentTime(int value)
     {
+        if (!_levelAlive) return;
         currentTime = Mathf.Max(0, value);
         if (currentTimeText != null)
             currentTimeText.text = currentTime.ToString();
@@ -60,6 +69,16 @@ public class Timeline : MonoBehaviour
     private void OnHeartbeat(int elapsedTime)
     {
         SetCurrentTime(timeLimit - elapsedTime);
+        if (currentTime < 1)
+        {
+            Player.Instance.GameOver();
+        }
+    }
+
+    private void OnLevelOver()
+    {
+        _levelAlive = false;
+        _clock.Heartbeat -= OnHeartbeat;
     }
 
     private void OnDestroy()

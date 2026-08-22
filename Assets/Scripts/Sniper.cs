@@ -1,13 +1,19 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class Sniper : MonoBehaviour
 {
     public static Sniper Instance { get; private set; }
+    [SerializeField] private TMP_Text parryGuideText;
     
     // 보고 반응하기 거의 불가능한 윈도우여야 하므로, 0.2초 이하를 권장한다.
-    [SerializeField, Min(0f)] private float parryableWindow = 0.1f;
+    [SerializeField, Min(0f)] private float parryableWindow = 0.2f;
+    [SerializeField, Min(0f)] private double thresholdChance = 0.2f;
+    [SerializeField, Min(0f)] private double thresholdChanceOfDouble = 0.05f;
+    
+    private System.Random _myDefaultPositionRandomSeed;
     
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip warningSFX;
@@ -25,7 +31,7 @@ public class Sniper : MonoBehaviour
     private int _nextShot;
     private Clock _clock;
     // The sniper is intentionally scheduled only once after this position.
-    private const float SniperSpawnX = 170f;
+    private const float SniperSpawnX = 10f;
     private bool _hasScheduledHardcodedShot;
     [SerializeField] private LineRenderer redRay;
     private Coroutine redRayCoroutine;
@@ -51,7 +57,11 @@ public class Sniper : MonoBehaviour
         {
             _clock.Heartbeat += OnHeartbeat;
         }
-
+        
+        _myDefaultPositionRandomSeed = new System.Random(
+            PlatformManager.Instance != null ? PlatformManager.Instance.DefaultPositionRandomSeed : 0);
+        
+        parryGuideText.enabled = false;
     }
 
     private void OnDestroy()
@@ -83,14 +93,16 @@ public class Sniper : MonoBehaviour
 
             // 패리 코루틴 플레이어에서 실행
             StartAim();
+            if (_hasScheduledHardcodedShot) StartCoroutine(FireFirstShot());
             HasAimed?.Invoke(AimToShot, parryableWindow);
             if (_isDouble)
             {
                 _isDouble = false;
                 _nextShot = 3;
+                
                 if (audioSource != null && warningSFX != null)
                 {
-                    audioSource.PlayOneShot(warningSFX, 0.7f);
+                    audioSource.PlayOneShot(warningSFX, 0.5f);
                 }
                 return;
             }
@@ -98,9 +110,25 @@ public class Sniper : MonoBehaviour
             // 효과음 재생
             if (audioSource != null && warningSFX != null)
             {
-                audioSource.PlayOneShot(warningSFX, 0.7f);
+                audioSource.PlayOneShot(warningSFX, 0.5f);
             }
             return;
+        }
+        
+        // TODO: (정식 버전에서는 오브젝트 스트림을 중앙에서 발행. 게임잼에서는 배제)
+        var res = _myDefaultPositionRandomSeed.NextDouble();
+        if (res < thresholdChanceOfDouble)
+        {
+            _nextShot = 4;
+            _isDouble = true;
+            return;
+        }
+
+        if (res < thresholdChance)
+        {
+            _nextShot = 4;
+            return;
+            // TODO: 다음 뒷배경 청크 생성
         }
         
         if (_hasScheduledHardcodedShot || Player.Instance == null ||
@@ -114,6 +142,15 @@ public class Sniper : MonoBehaviour
         _nextShot = 4;
         // 스나이퍼 네모 게임오브젝트 표시 on
         // 레이캐스트 코루틴 시작
+    }
+
+    private IEnumerator FireFirstShot()
+    {
+        yield return new WaitForSecondsRealtime(AimToShot - (parryableWindow / 2f));
+        parryGuideText.enabled = true;
+        
+        yield return new WaitForSecondsRealtime(parryableWindow);
+        parryGuideText.enabled = false;
     }
 
     private IEnumerator RedRaycast()

@@ -81,6 +81,7 @@ public class Player : MonoBehaviour
     private int _nextParryWindowId;
     private bool _isGameOver;
     private bool _isLevelComplete;
+    public event Action levelOver;
     public bool IsRespawning { get; private set; }
     public bool IsRecoveringFromStumble { get; private set; }
     private float _stumbleElapsed;
@@ -394,7 +395,7 @@ public class Player : MonoBehaviour
 
             if (audioSource != null && parrySFX != null)
             {
-                audioSource.PlayOneShot(parrySFX, 0.5f);
+                audioSource.PlayOneShot(parrySFX, 0.35f);
             }
         }
 
@@ -581,6 +582,7 @@ public class Player : MonoBehaviour
         }
 
         _isLevelComplete = true;
+        levelOver?.Invoke();
 
         if (_attackCoroutine != null)
         {
@@ -628,9 +630,10 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void GameOver()
+    public void GameOver()
     {
         _isGameOver = true;
+        levelOver?.Invoke();
         // 이동·물리·공격 연출을 함께 멈추는 게임잼용 단일 일시정지 지점이다.
         Time.timeScale = 0f;
 
